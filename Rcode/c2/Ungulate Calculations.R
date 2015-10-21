@@ -8,14 +8,11 @@ rm(list=ls(all=TRUE))
 
 set.seed(270875)
 
-## working directory must be set here, so the source()'s below run
-setwd("~/Repos/ipm_book/")
-
 ## run the utility functions
-source("./Rcode/utilities/Standard Graphical Pars.R")
+source("../utilities/Standard Graphical Pars.R")
 
 ## run the ungulate IBM
-source("./Rcode/c2/Ungulate Demog Funs.R")
+source("Ungulate Demog Funs.R")
 
 ## set the simulation parameters
 init.pop.size <- 500
@@ -23,7 +20,7 @@ n.yrs <- 400
 m.par <- m.par.true
 
 ## run the ungulate IBM
-source("./Rcode/c2/Ungulate Simulate IBM.R")
+source("Ungulate Simulate IBM.R")
 cat(pop.size,"\n")
 
 ## take a random sample of 3000 observations
@@ -41,7 +38,7 @@ round(sim.data[sample(1:nrow(sim.data),8),],2)
 
 ## set the plotting region
 ## dev.new(6, 6)
-postscript(file="./c2/figures/SoayDemog.eps", w=6, h=6,
+postscript(file="../../figures/c2/SoayDemog.eps", w=6, h=6,
            horizontal = FALSE, onefile = FALSE, paper = "special")
 set_graph_pars(ptype = "panel4")
 plot.range <- c(2.0, 3.5)
@@ -218,7 +215,7 @@ mk_moments <- function(z.dist, meshpts) {
 }
 
 ## 
-postscript(file="./c2/figures/SoaySizeAge.eps", w=6, h=6,
+postscript(file="../../figures/c2/SoaySizeAge.eps", w=6, h=6,
            horizontal = FALSE, onefile = FALSE, paper = "special")
 set_graph_pars(ptype = "panel1")
 ## age = 0 (new recruits)
@@ -230,6 +227,6 @@ for (A in 0:4) {
     lines(meshpts, z.dist)
     moments <- round(mk_moments(z.dist, meshpts), 2)
     text(x=moments["mean"], y=max(z.dist)+5e-5, pos=4, cex=0.75,
-         labels=paste("A = ", A, " (mean = ", moments["mean"],", s.d. = ",moments["sd"],")", sep=""))
+         labels=paste("A = ", A, " (mean = ", moments["mean"], ", s.d. = ", moments["sd"],")", sep=""))
 }
 dev.off()
