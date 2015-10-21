@@ -1,0 +1,431 @@
+#============================================================================
+#R script for the calculations described in  "Integral projection models for 
+# finite populations in a stochastic environment" by Vindenes et al. (2010)
+#============================================================================
+
+#The following code was used to calculate parameter values for the examples 
+#in the paper, and to perform simulations.  
+#Example 1 refers to the example with only demographic stochasticity (fig.4)
+#Example 2 refers to the example with only environmental stochasticity (fig.5)
+#Example 3 refers to the example with both demographic and 
+#environmental stochasticity (fig.6)
+
+#============================================================================
+#VITAL PARAMETER FUNCTIONS
+#============================================================================
+#The vital parameter functions determine the value of a vital parameter as 
+#function of the state variable (body mass) x and environmental variable z.
+
+#----------------------------------------------------------------------------
+#SURVIVAL PROBABILITY
+#----------------------------------------------------------------------------
+
+#Examples 1 and 2:	
+sx1 <- sx2 <- function(x, z=0){
+	s <- dt(16-x, 2+z, ncp=4) * 4.4 * exp(4 * z / (x+5))
+	s[s < 0] <- 0
+	s[s > .99] <- .99
+	s
+	}
+
+
+#----------------------------------------------------------------------------
+#FECUNDITY
+#----------------------------------------------------------------------------
+
+#Examples 1 and 2:
+bx1 <- bx2 <- function(x, z=0){
+ 	dt(15-x, 2+z, ncp=2) * 5.1 * exp(18 * z / (x+7))
+ 	}
+
+#----------------------------------------------------------------------------
+#VARIANCE IN NUMBER OF OFFSPRING PER INDIVIDUAL (Examples 1 and 3)
+#----------------------------------------------------------------------------
+
+#Poisson distributed number of offspring
+
+sigBx1 <- bx1
+sigBx3 <- bx3
+
+
+#----------------------------------------------------------------------------
+#COVARIANCE BETWEEN SURVIVAL AND REPRODUCTION 
+#----------------------------------------------------------------------------
+#(Assumed to be zero in all examples)
+
+sigBSx <- function(x, z=0){	0 }
+	
+#----------------------------------------------------------------------------
+#TRANSITION TO NEW STATE, ADULTS
+#----------------------------------------------------------------------------
+#Probability density function for new state y given current state x 
+#(environment has no effect in these examples)
+
+fsyx <- function(x, y, z=0, sd.ad=1){
+	dnorm(y, mean=x+5 * exp(-.2 * x), sd=sd.ad)
+	}
+	
+#----------------------------------------------------------------------------
+#TRANSITION TO NEW STATE, OFFSPRING
+#----------------------------------------------------------------------------
+#Probability density function for new state y of offspring (parental state 
+#x and environment z has no effect in these examples)
+
+fbyx <- function(x, y, z=0, sd.off=1){
+	dnorm(y, mean=10, sd=sd.off)
+	}
+
+
+#============================================================================
+#PROJECTION FUNCTIONS AND MATRICES
+#============================================================================
+
+#Set a minimum (L) and maximum (U) value for the state variable
+L <- 0; U <- 20
+ 
+#Discretize the model 
+n <- 200
+x <- seq(L, U, length=n)
+dx <- x[2] - x[1]
+
+#----------------------------------------------------------------------------
+#PROJECTION FUNCTIONS
+#----------------------------------------------------------------------------
+#Example 1:
+Kxyz1 <- function(x, y, z=0, ...) {
+	sx1(x,z,...) * fsyx(x, y, z) + bx1(x, z, ...) * fbyx(x, y, z)
+	}
+	
+#----------------------------------------------------------------------------
+#PROJECTION MATRICES
+#----------------------------------------------------------------------------
+K1 <- K2 <- K3 <- matrix(NA, nrow=n, ncol=n)
+
+#For examples 2 and 3 (non-constant environment):
+#Create a projection matrix for each environment, store in an array
+
+#PROJECTION MATRIX, example 1:
+for (i in 1:n) K1[,i] <- Kxyz1(x=x[i], y=x, z=0) * dx
+
+#============================================================================
+#EXPECTED GROWTH RATE, STABLE STRUCTURE AND REPRODUCTIVE VALUES
+#============================================================================
+
+#----------------------------------------------------------------------------
+#EXPECTED GROWTH RATE
+#----------------------------------------------------------------------------
+#The function "lambda" returns the expected growth rate lambda, based 
+#on iteration of the discretized model.
+
+lambda <- function(N0, K, tol=1e-6) {
+	Nt <- N0
+	lam <- 1
+	prev.lam <- .5
+	while (abs(lam-prev.lam)>tol){
+		prev.lam <- lam
+		Nt.new <- K %*% Nt
+		lam <- sum(Nt.new) / sum(Nt)
+		Nt <- Nt.new
+		}
+	lam
+	}
+
+
+#Lambda, example 1:
+lambda1 <- lambda(N0=rep(1,n), K=K1)
+
+#----------------------------------------------------------------------------
+#STABLE STATE STRUCTURE
+#----------------------------------------------------------------------------
+#The function"ufunc" returns a stable state vector u, scaled so that 
+#sum(u)=1, based on iteration of the discretized model.  To approximate the 
+#continuous stable state distribution u(x), the values of the vector are 
+#interpolated and scaled by the length dx of each state interval.
+
+ufunc <- function(N0, K, tol=1e-6) {
+	Nt <- N0
+	lam <- 1
+	prev.lam <- .5
+	u <- Nt/sum(Nt)
+	while (abs(lam-prev.lam)>tol){
+		prev.lam <- lam
+		Nt.new <- K %*% Nt
+		lam <- sum(Nt.new) / sum(Nt)
+		Nt <- Nt.new
+		}
+	Nt/sum(Nt)
+	}
+
+
+#Example 1:
+u1 <- as.vector(ufunc(K=K1, N0=rep(1,n)))
+uscaled1 <- as.vector(ufunc(K=K1, N0=rep(1,n))) / dx
+
+#Approximation of u(x), example 1:
+ufun1 <- approxfun(seq(L, U, length=n), uscaled1)
+
+#----------------------------------------------------------------------------
+#REPRODUCTIVE VALUE FUNCTION
+#----------------------------------------------------------------------------
+#The function "vfunc" is the state-dependent reproductive value vector v, 
+#scaled so that sum(u*v)=1. Each element of the resulting vector v 
+#corresponds to the reproductive value of individuals in the corresponding 
+#state in the discretized model, the continuous function v(x) is approximated 
+#by interpolation of v.
+
+vfunc <- function(N0, K, tol=1e-6) {
+	u <- ufunc(N0=N0,K=K,tol=tol)
+	Nt <- N0
+	lam <- 1
+	prev.lam <- .5
+	while (abs(lam-prev.lam)>tol){
+		prev.lam <- lam
+		Nt.new <- t(K)%*%Nt
+		lam <- sum(Nt.new)/sum(Nt)
+		Nt <- Nt.new
+		}
+	Nt/sum(Nt*u)
+	}
+
+
+#Example 1:
+v1 <- as.vector(vfunc(K=K1, N0=rep(1,n)))
+
+#Approximation of v(x), example 1:
+vfun1 <- approxfun(seq(L, U, length=n), v1)
+
+
+#============================================================================
+#DEMOGRAPHIC VARIANCE (EXAMPLES 1 AND 3)
+#============================================================================
+
+#See Vindenes et al. (2010) for definition and description of the demographic 
+#variance.
+
+#For example 1:
+meanvs1 <- meanvb1 <- starvs1 <- starvb1 <- rep(NA,n)
+for(i in 1:n){
+	meanvs1[i] <- sum(fsyx(y=x, x=x[i], sd.ad=1) * vfun1(x) * dx)
+	meanvb1[i] <- sum(fbyx(y=x, x=x[i], sd.off=1) * vfun1(x) * dx)
+	starvs1[i] <- sum(fsyx(y=x, x=x[i], sd.ad=1) * vfun1(x)^2 * dx)
+	starvb1[i] <- sum(fbyx(y=x, x=x[i], sd.off=1) * vfun1(x)^2 * dx)
+	}
+	
+#Demographic variance, example 1:	
+demvar1 <- sum(ufun1(x) * (meanvs1^2 * sx1(x) * (1-sx1(x)) + 
+meanvb1^2 * sigBx1(x) + 2 * meanvs1 * meanvb1 * sigBSx(x) + 
+sx1(x) * (starvs1 - meanvs1^2) + bx1(x) * (starvb1 - meanvb1^2)) * dx)
+
+#Mean fecundity function with respect to environment
+bmean <- sigBmean <- apply(do.call(rbind, lapply(zvec, function(y) bx3(x, y))) 
+*probs, 2, sum)
+
+#Mean covariance function with respect to environment
+sigBSmean<-apply(do.call(rbind, lapply(zvec, function(y) sigBSx(x, y)))
+*probs, 2, sum)
+
+
+#============================================================================
+#DIFFUSION APPROXIMATION
+#============================================================================
+# The following functions perform simulations of a diffusion process with 
+# density-independent  dynamics, using the expected growth rate (lambda), 
+# the environmental variance (envar) and the demographic variance (demvar). 
+# Letting y denote population size on log scale, the infinitesimal mean is 
+# log(lambda)-1/(2*lambda^2)*(envvar+demvar/exp(y)) and the infinitesimal 
+# variance is 1/(2*lambda^2)(envvar+demvar/exp(y)). The parameter "y0" is 
+# the initial population size on log scale. Other parameters are "t.max" 
+# (the maximum number of time steps), "delta.t" (the size of each time interval, 
+# the process is stored only at integer times),  "n.sim" (the number of 
+# desired realizations), and "b" (an upper limit to the process (on log scale)).  
+# Each realization is stored in a separate row in the returned matrix. 
+# The process is defined as extinct if y<=0  (population size exp(y)<=1).
+
+mu.nu <- function(y, envar, demvar, lambda){
+    mu <- log(lambda)-1/(2*lambda^2)*(envar+demvar/exp(y))
+    nu <- 1/lambda^2*(envar+demvar/exp(y))
+    mu[y<=0] <- 0
+    nu[y<=0] <- 0
+    return(list("mu"=mu, "nu"=nu))
+    }
+    
+diffusion <- function(y0, t.max=1000, delta.t=.1, n.sim=1000, b=Inf,...) {
+  yy <- matrix(NA,ncol=(t.max+1),nrow=n.sim)
+  tt <- seq(0,length=(t.max+1))
+  yy[,1] <- y <- y0
+  tt[1] <- t <- 0
+  j <- 1
+  for (i in 1:(t.max/delta.t)) {
+    mn  <- mu.nu(y=y,...)
+    y <- y + mn$mu*delta.t + rnorm(n.sim)*sqrt(mn$nu*delta.t)
+    y[y>=b] <- b
+    y[y<=0] <- 0
+    if (i%%(1/delta.t)==0) {
+    	j <- j + 1
+      	yy[,j] <- y
+    	}
+  	}
+  	return(yy) 
+	}
+
+
+#Example 1:
+diff.ex1 <- diffusion(y0=log(100), b=log(10000), lambda=lambda1, demvar=demvar1, envar=0, t.max=500, n.sim=5000)
+
+surv1 <- diff.ex1[,501]>0;
+surv.ex1 <- diff.ex1[surv1,]
+
+nmin <- exp(apply(surv.ex1,1,min));
+hist(nmin); 
+
+yvals=seq(0,9,length=131); yvals=yvals[-1]; 
+fvals=pmax(0,exp(-(yvals/4)^4)); 
+
+ffun=function(yvals,fvals) { 
+    xn = c(-20,0,yvals,max(yvals)+20);
+    fn = c(1,1,fvals,0); 
+    return(approxfun(xn,fn))
+}
+
+out=mu.nu(yvals,envar=0,demvar1,lambda1); 
+delta.t=0.1; 
+mu=out$mu*delta.t; nu=out$nu*delta.t; snu=sqrt(nu); 
+
+
+Fsave=matrix(NA,length(fvals),10000); Fsave[,1]=fvals; 
+for(j in 2:10000) { 
+Ffun=ffun(yvals,fvals); fnew=fvals; 
+for(i in 1:length(yvals)) {
+    ymin <- yvals[i]+mu[i] - 5*snu[i];  ymax <- yvals[i]+mu[i] + 5*snu[i];   
+    fnew[i]=integrate(function(y) Ffun(y)*dnorm(y,mean=yvals[i]+mu[i],sd=snu[i]),ymin,ymax,stop.on.error=FALSE)$value; 
+}
+fvals=fnew; Fsave[,j]=fnew; 
+if(j%%100==0) cat(j,"\n"); 
+}
+
+matplot(yvals,Fsave[,c(1,500,1000,2500,5000)],type="l",col=1:6); 
+
+diff.ex1 <- diffusion(y0=2, b=25, lambda=lambda1, demvar=demvar1, envar=0, t.max=500, n.sim=2500)
+surv1 <- diff.ex1[,501]>0; 1-mean(surv1); Ffun(2); 
+
+diff.ex2 <- diffusion(y0=5, b=25, lambda=lambda1, demvar=demvar1, envar=0, t.max=1500, n.sim=5000)
+surv2 <- diff.ex2[,1501]>0; 1-mean(surv2); Ffun(5); 
+
+
+
+#============================================================================
+#SIMULATION OF THE FULL STRUCTURED MODEL
+#============================================================================
+#The following functions perform simulations of the full structured model 
+#for the three examples.  Compared to the diffusion simulations, the 
+#computation time is longer, especially for the second example which is 
+#based on the discretized model using one matrix for each environmental 
+#condition (the computation time for these simulations may be slow, 
+#especially in example 2). 
+
+
+#----------------------------------------------------------------------------
+#EXAMPLE 1: ONLY DEMOGRAPHIC STOCHASTICITY 
+#----------------------------------------------------------------------------
+
+#Initialize: Create a vector x01 of values from (approximately) the stable 
+#state distribution,
+#length of x01 is the initial population size N0
+
+N0 <- 100
+cumul1 <- cumsum(ufun1(seq(L, U, length=n))) / max(cumsum(ufun1(seq(L, 
+U, length=n))))
+cumfun1 <- approxfun(seq(L, U, length=n), cumul1)
+x01 <- as.numeric(lapply(seq(.01, 1, length=N0), function(y) seq(L, U, 
+length=10000)[max(which(cumfun1(seq(L, U, length=10000)) < y))]))
+
+
+#Perform one realization of the process, based on the parameter values 
+#specified for this example:
+simpop1 <- function(x1=x01, t.max=500, V.max=5000,...){
+	x <- x1
+	V <- sum(vfun1(x))
+	time <- 0
+	repeat {
+		time <- time+1
+		off <- rnorm(n=sum(rpois(x,lambda=bx1(x))), mean=10, sd=1)
+		z <- rbinom(n=length(x),size=1,prob=sx1(x))
+		x <- (x*z)[(x*z)!=0]
+		x <- rnorm(n=length(x),mean=x+5*exp(-x*.2),sd=1)
+		x <- c(x,off)
+		x[x<=L] <- L
+		x[x>=U] <- U
+		V <- c(V,sum(vfun1(x)))
+		if (V[length(V)]<=1 | time>=t.max | V[length(V)]>V.max){
+			V<-c(V,rep(V[length(V)],t.max-time))
+			break;
+			}
+		}
+	V
+	}
+	
+
+
+#Perform n.sim realizations and store them rowwise in a matrix:
+nsimpop1 <- function(n.sim=10000, t.max=500,...){
+	vv <- matrix(NA,ncol=t.max+1, nrow=n.sim)
+	for (i in 1:n.sim){
+		vv[i,]<-simpop1(t.max=t.max,...)
+		}
+	vv
+	}
+
+#Simulations, example 1:
+sim.ex1 <- nsimpop1(t.max=500,n.sim=10000,V.max=10000)
+
+#============================================================================
+#PLOTS
+#============================================================================
+
+#----------------------------------------------------------------------------
+#FIGURE 4:
+#----------------------------------------------------------------------------
+par(mfrow=c(2, 2), bty="l", family="sans", xaxs="i", yaxs="i")
+
+plot(seq(0, 20, .01), bx1(seq(0, 20, .01)), type="l", xlab="State x", 
+ylab="")
+
+mtext(text="A", cex=1.2, at=0, side=3, line=1)
+
+lines(seq(0, 20, .01), sx1(seq(0, 20, .01)) ,lty=2)
+
+legend(3, 1, legend=c("b(x)", "s(x)"), lty=c(1,2), bty="n")
+
+
+contour(x, x, t(K1), add=F, drawlabels=F, xlab="x", ylab="y")
+
+mtext(text="B", cex=1.2, at=0, side=3, line=1)
+
+
+plot(x, vfun1(x), ylab="", type="l", xlab="State x", lty=2, xlim=c(0,20))
+
+mtext(text="C", cex=1.2,at=0, side=3, line=1)
+
+lines(x, ufun1(x), type="l", xlab="x", xlim=c(0,20))
+
+
+legend(3, 1.5, legend=c("v(x)","u(x)"), bty="n", lty=c(2,1))
+
+
+matplot(t(apply(sim.ex1, 2, quantile, prob=c(.05, .25, .5, .75, .95))), type="l", 
+col=1, lty=1, ylab="Total reproductive value", ylim=c(0, 500), xlim=c(0, 200), 
+xlab="Time")
+
+mtext(text="D", cex=1.2, at=0, side=3, line=1)
+
+matlines(t(apply(exp(diff.ex1), 2, quantile, prob=c(.05, .25, .5, .75, .95))), 
+col=1, lty=2)
+
+text(130, 20, "0.05")
+text(125, 115, "0.25")
+text(110, 210, "0.5")
+text(80, 290, "0.75")
+text(50, 350, "0.95")
+
+#quartz.save(file="fig4.pdf", type="pdf", dpi=800)
+

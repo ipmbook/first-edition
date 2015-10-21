@@ -1,0 +1,1786 @@
+rm(list=ls(all=TRUE))#
+#
+library(doBy)#
+set.seed(53241986)#
+setwd("~/Repos/ipm_book/Rcode/c2")#
+source("Monocarp Demog Funs.R");#
+source("../utilities/Standard Graphical Pars.R");#
+#
+source("../c9/old_code/VarDynamics Funs.R"); #
+init.pop.size <- 10000#
+Recr <- 7500#
+n.yrs <- 500#
+beta.off.sd <- 0.5#
+init.beta.sd <- 0.1#
+load("../c9/SimData.Rdata")#
+if(FALSE) {#
+  mean.flow.ints <- matrix(NA,nrow=n.yrs,ncol=10)#
+  var.flow.ints <- matrix(NA,nrow=n.yrs,ncol=10)#
+  min.z <- rep(NA,10)#
+  max.z <- rep(NA,10)#
+  min.beta <- rep(NA,10)#
+  max.beta <- rep(NA,10)#
+#
+  for(reps in 1:10){#
+     init.mean.flow.int <- ifelse(reps<6, -20, -30)#
+	 source("../c9/Monocarp Simulate Evol IBM.R") #
+     mean.flow.ints[,reps] <- mean.flow.int#
+     var.flow.ints[,reps] <- var.flow.int#
+     min.z[reps] <- min.z.t#
+     max.z[reps] <- max.z.t#
+     min.beta[reps] <- min.flow.int#
+     max.beta[reps] <- max.flow.int#
+     cat(reps,"   ",init.mean.flow.int,"\n")#
+  }#
+#
+save(mean.flow.ints,var.flow.ints,min.z,max.z,min.beta,max.beta,#
+n.yrs,beta.off.sd,init.beta.sd,file="../c9/SimDataSmallVar.Rdata")#
+#
+}#
+graphics.off(); dev.new(); #
+set_graph_pars("panel4"); #
+matplot(mean.flow.ints,type="l",col=rep(c("black","grey"),rep(5,2)),xlab="Time",#
+	ylab="Mean flowering intercept",xlim=c(0,n.yrs))#
+add_panel_label("a")#
+matplot(var.flow.ints,type="l",col=rep(c("black","grey"),rep(5,2)),xlab="Time",#
+ylab="Variance flowering intercept",xlim=c(0,n.yrs))#
+add_panel_label("b")#
+nBigMatrix.z <- 100; #
+nBigMatrix.beta <- 100; #
+U.beta <- max(max.beta[1:5]) +  1 #
+L.beta <-  min(min.beta[1:5]) - 1#
+h.beta <- (U.beta - L.beta)/nBigMatrix.beta #
+meshpts.beta <- L.beta + ((1:nBigMatrix.beta) - 1/2) * h.beta#
+#
+U.z <- max(max.z[1:5]) + 0.5 #
+L.z <- min(min.z[1:5]) - 0.5 #
+h.z <- (U.z - L.z)/nBigMatrix.z#
+meshpts.z <- L.z + ((1:nBigMatrix.z) - 1/2) * h.z#
+sol.2D.minus20 <- iterate_model(m.par.true,n.yrs,-20,init.beta.sd,meshpts.beta,meshpts.z)#
+U.beta <- max(max.beta[6:10]) +  1 #
+L.beta <-  min(min.beta[6:10]) - 1#
+h.beta <- (U.beta - L.beta)/nBigMatrix.beta #
+meshpts.beta <- L.beta + ((1:nBigMatrix.beta) - 1/2) * h.beta#
+#
+U.z <- max(max.z[6:10]) + 0.5 #
+L.z <- min(min.z[6:10]) - 0.5 #
+h.z <- (U.z - L.z)/nBigMatrix.z#
+meshpts.z <- L.z + ((1:nBigMatrix.z) - 1/2) * h.z#
+sol.2D.minus30 <- iterate_model(m.par.true,n.yrs,-30,init.beta.sd,meshpts.beta,meshpts.z)#
+beta20 <- sol.2D.minus20$betaDist;#
+matplot(meshpts.beta^2,beta20[,c(1,100,300,500)], xlab="Beta", ylab="Relative Frequency",type="l"); #
+#
+beta30 <- sol.2D.minus30$betaDist;#
+matplot(meshpts.beta^2,beta30[,c(1,100,300,500)], xlab="Beta", ylab="Relative Frequency",type="l"); #
+dev.new(); #
+set_graph_pars("panel4"); #
+matplot(mean.flow.ints,type="l",col=rep(c("black","grey"),rep(5,2)),xlab="Time",#
+ylab="Mean flowering intercept",xlim=c(0,n.yrs))#
+points(1:n.yrs,sol.2D.minus20$mean.beta,col="blue",type="l",lwd=2)#
+points(1:n.yrs,sol.2D.minus30$mean.beta,col="turquoise",type="l",lwd=2)#
+abline(h=-24.92462,col="red")#
+legend("topright",legend=c("IBM -20","IBM -30", "IPM -20", "IPM -30"),#
+	col=c("black","grey","blue","turquoise"),lty=1,lwd=2,bty="n");  #
+#
+add_panel_label("a")#
+#
+matplot(var.flow.ints,type="l",col=rep(c("black","grey"),rep(5,2)),xlab="Time",#
+ylab="Variance flowering intercept",,xlim=c(0,n.yrs))#
+points(1:n.yrs,sol.2D.minus20$var.beta,col="blue",type="l",lwd=2)#
+points(1:n.yrs,sol.2D.minus30$var.beta,col="turquoise",type="l",lwd=2)#
+add_panel_label("b")#
+#
+plot(1:n.yrs,sol.2D.minus20$mean.beta2,col="blue",type="l",ylim=c(0,1000),lwd=2,ylab="Mean of beta^2")#
+points(1:n.yrs,sol.2D.minus30$mean.beta2,col="turquoise",type="l",lwd=2)#
+add_panel_label("c")#
+minus20.var <- sol.2D.minus20$mean.beta^4 + 6*(sol.2D.minus20$mean.beta^2)*sol.2D.minus20$var.beta +#
+                 3*sol.2D.minus20$var.beta^2 - sol.2D.minus20$mean.beta2^2#
+#
+minus30.var <- sol.2D.minus30$mean.beta^4 + 6*(sol.2D.minus30$mean.beta^2)*sol.2D.minus30$var.beta +#
+                 3*sol.2D.minus30$var.beta^2 - sol.2D.minus30$mean.beta2^2#
+#
+plot(1:n.yrs,sol.2D.minus20$var.beta2,col="blue",type="l",ylim=c(0,20000),lwd=4,ylab="Variance of beta^2")#
+points(1:n.yrs,minus20.var,col="red",type="l",lty=2)  #
+#
+points(1:n.yrs,sol.2D.minus30$var.beta2,col="turquoise",type="l",lwd=4)#
+points(1:n.yrs,minus30.var,col="red",type="l",lty=2)
+7/20
+7/20*100
+nBigMatrix <- nBigMatrix.z; #
+beta.minus20 <- Approx_dynamics_Var(m.par.true,-20,n.yrs,0.00001,sol.2D.minus20$var.beta,sol.2D.minus20$prop.Recr)#
+beta.minus30 <- Approx_dynamics_Var(m.par.true,-30,n.yrs,0.00001,sol.2D.minus30$var.beta,sol.2D.minus30$prop.Recr)#
+set_graph_pars("panel2");#
+#
+sum.t <- beta.minus20$change.P.w+beta.minus20$change.F.w +beta.minus20$P.change.w+beta.minus20$F.change.w#
+plot(beta.minus20$dlam,sum.t)#
+#
+cor.test(beta.minus20$dlam,sum.t)#
+max(abs(beta.minus20$dlam-sum.t),na.rm=TRUE)#
+#
+sum.t <- beta.minus30$change.P.w+beta.minus30$change.F.w +beta.minus30$P.change.w+beta.minus30$F.change.w#
+plot(beta.minus30$dlam,sum.t)#
+#
+cor.test(beta.minus30$dlam,sum.t)#
+max(abs(beta.minus30$dlam-sum.t),na.rm=TRUE)#
+dev.new(); #
+set_graph_pars("panel2"); #
+matplot(mean.flow.ints,type="l",col=rep(c("black","grey"),rep(5,2)),xlab="Time",#
+	ylab="Mean beta",xlim=c(1,n.yrs)) #
+points(1:n.yrs,sol.2D.minus20$mean.beta,col="blue",type="l",lty=1,lwd=4)#
+points(1:n.yrs,sol.2D.minus30$mean.beta,col="turquoise",type="l",lty=1,lwd=4)#
+points(1:n.yrs,beta.minus20$beta.t.mean,col="red",type="l",lty=2,lwd=2)#
+points(1:n.yrs,beta.minus30$beta.t.mean,col="red",type="l",lty=2,lwd=2)#
+legend("topright",legend=c("IPM -20","IPM -30","Approx"),col=c("blue","turquoise","red"),#
+    lty=1,bty="n",lwd=c(3,3,2));  #
+#
+add_panel_label("a")#
+matplot(var.flow.ints,type="l",col=rep(c("black","grey"),rep(5,2)),xlab="Time",#
+	ylab="Variance beta",xlim=c(1,n.yrs),ylim=c(0,8))#
+points(1:n.yrs,sol.2D.minus20$var.beta,col="blue",type="l",lwd=3)#
+points(1:n.yrs,sol.2D.minus30$var.beta,col="turquoise",type="l",lwd=3)#
+#
+points(1:n.yrs,beta.minus20$beta.t.var,col="purple",type="l",lwd=2,lty=2)#
+points(1:n.yrs,beta.minus30$beta.t.var,col="red",type="l",lwd=2,lty=2)#
+add_panel_label("b")#
+#
+set_graph_pars("panel4"); #
+#
+plot(1:n.yrs,beta.minus20$dlam,type="l",ylim=c(-0.02,0.03),lwd=2,xlab="Time",#
+	ylab="Selection",main="-20 start")#
+points(1:n.yrs,beta.minus20$dsurv,col="red",type="l")#
+points(1:n.yrs,beta.minus20$dfec,col="turquoise",type="l")#
+abline(h=0)#
+#
+legend("topright",legend=c("Total","Surv","Fec"),col=c("black","red","turquoise"),#
+    lty=1,bty="n",lwd=c(2,1,1),cex=0.75)#
+#
+plot(1:n.yrs,beta.minus30$dlam,type="l",ylim=c(-0.02,0.03),lwd=2,xlab="Time",#
+	ylab="Selection",main="-30 start")#
+points(1:n.yrs,beta.minus30$dsurv,col="red",type="l")#
+points(1:n.yrs,beta.minus30$dfec,col="turquoise",type="l")#
+abline(h=0)#
+#
+legend("topright",legend=c("Total","Surv","Fec"),col=c("black","red","turquoise"),#
+    lty=1,bty="n",lwd=c(2,1,1),cex=0.75)#
+#
+plot(1:n.yrs,beta.minus20$dlam,type="l",ylim=c(-0.15,0.15),lwd=2,xlab="Time",#
+	ylab="Selection",main="-20 start")#
+points(1:n.yrs,beta.minus20$change.P.w+beta.minus20$change.F.w,col="red",type="l")#
+points(1:n.yrs,beta.minus20$P.change.w+beta.minus20$F.change.w,col="turquoise",type="l")#
+abline(h=0)#
+#
+legend("topright",legend=c("Total","Kernel","w"),col=c("black","red","turquoise"),#
+    lty=1,bty="n",lwd=c(2,1,1),cex=0.75)#
+ plot(1:n.yrs,beta.minus30$dlam,type="l",ylim=c(-0.15,0.15),lwd=2,xlab="Time",#
+	ylab="Selection",main="-30 start")#
+points(1:n.yrs,beta.minus30$change.P.w+beta.minus30$change.F.w,col="red",type="l")#
+points(1:n.yrs,beta.minus30$P.change.w+beta.minus30$F.change.w,col="turquoise",type="l")#
+abline(h=0)#
+#
+legend("topright",legend=c("Total","Kernel","w"),col=c("black","red","turquoise"),#
+    lty=1,bty="n",lwd=c(2,1,1),cex=0.75)
+16/60
+16/59
+rm(list=ls(all=TRUE))#
+#
+library(doBy)#
+library(lattice)#
+library(gridExtra)#
+#
+set.seed(53241986)#
+setwd("~/Repos/ipm_book/Rcode/c2")#
+#
+source("Monocarp Demog Funs.R");#
+#
+source("../utilities/Standard Graphical Pars.R");#
+nBigMatrix <- 250; p.r.est <- p.r <- 0.007;
+setwd("~/Repos/ipm_book/Rcode/c2")#
+#
+source("Monocarp Demog Funs.R");#
+#
+source("../utilities/Standard Graphical Pars.R");#
+nBigMatrix <- 250; p.r.est <- p.r <- 0.007; #
+init.pop.size <- 1000; n.yrs <-75; #
+source("Monocarp Simulate IBM.R")
+sim.data.big <- sim.data[sim.data$yr > 10,]#
+sim.data.big$yr <- sim.data.big$yr-10#
+No.sims <-250; #
+Lambdas <- rep(NA,No.sims)#
+#
+indices=sample(1:(No.sims*1000),replace=FALSE);#
+indices=matrices(indices,ncol=No.sims);#
+#
+for(i in 1:No.sims) {#
+sample.index <- indices[,i]; #
+sim.data <- sim.data.big[sample.index,]#
+mod.Grow <- lm(z1 ~ z, data = sim.data)#
+mod.Repr <- glm(Repr ~ z, family = binomial, data = sim.data)#
+sim.data.noRepr <- subset(sim.data, Repr==0)#
+mod.Surv <- glm(Surv ~ z, family = binomial, data = sim.data.noRepr)#
+no.surv <- sum(sim.data.noRepr$Surv)#
+sim.data.Repr <- subset(sim.data, Repr==1)#
+mod.Seeds <- glm(Seeds ~ z, family=poisson, data=sim.data.Repr)#
+no.repr <- sum(sim.data.Repr$Repr)#
+sim.data.Rec <- subset(sim.data, age==0)#
+mod.Rcsz <- lm(z ~ 1 , sim.data.Rec)#
+no.recs <- dim(sim.data.Rec)[1]#
+m.par.est <- c(surv    = coef(mod.Surv),#
+               flow    = coef(mod.Repr),#
+               grow    = coef(mod.Grow),#
+               grow.sd = summary(mod.Grow)$sigma,#
+               rcsz    = coef(mod.Rcsz),#
+               rcsz.sd = summary(mod.Rcsz)$sigma,#
+               seed    = coef(mod.Seeds),#
+               p.r     = p.r.est)#
+names(m.par.est) <- names(m.par.true)#
+IPM.est <- mk_K(nBigMatrix, m.par.est, -2.65, 4.5)#
+Lambdas[i] <- Re(eigen(IPM.est$K)$values[1])#
+cat(i,"   ",Lambdas[i],"  ",no.surv,"  ",no.repr,"  ",no.recs,"\n")#
+}#
+diff(range(Lambdas))#
+quantile(Lambdas,c(0.05,0.5,0.95))
+No.sims <-250; #
+Lambdas <- rep(NA,No.sims)#
+#
+indices=sample(1:(No.sims*1000),replace=FALSE);#
+indices=matrix(indices,ncol=No.sims);
+for(i in 1:No.sims) {#
+sample.index <- indices[,i]; #
+sim.data <- sim.data.big[sample.index,]#
+mod.Grow <- lm(z1 ~ z, data = sim.data)#
+mod.Repr <- glm(Repr ~ z, family = binomial, data = sim.data)#
+sim.data.noRepr <- subset(sim.data, Repr==0)#
+mod.Surv <- glm(Surv ~ z, family = binomial, data = sim.data.noRepr)#
+no.surv <- sum(sim.data.noRepr$Surv)#
+sim.data.Repr <- subset(sim.data, Repr==1)#
+mod.Seeds <- glm(Seeds ~ z, family=poisson, data=sim.data.Repr)#
+no.repr <- sum(sim.data.Repr$Repr)#
+sim.data.Rec <- subset(sim.data, age==0)#
+mod.Rcsz <- lm(z ~ 1 , sim.data.Rec)#
+no.recs <- dim(sim.data.Rec)[1]#
+m.par.est <- c(surv    = coef(mod.Surv),#
+               flow    = coef(mod.Repr),#
+               grow    = coef(mod.Grow),#
+               grow.sd = summary(mod.Grow)$sigma,#
+               rcsz    = coef(mod.Rcsz),#
+               rcsz.sd = summary(mod.Rcsz)$sigma,#
+               seed    = coef(mod.Seeds),#
+               p.r     = p.r.est)#
+names(m.par.est) <- names(m.par.true)#
+IPM.est <- mk_K(nBigMatrix, m.par.est, -2.65, 4.5)#
+Lambdas[i] <- Re(eigen(IPM.est$K)$values[1])#
+cat(i,"   ",Lambdas[i],"  ",no.surv,"  ",no.repr,"  ",no.recs,"\n")#
+}#
+diff(range(Lambdas))#
+quantile(Lambdas,c(0.05,0.5,0.95))
+boot_lambda <- function(dataset,n.samp=250,p.r){#
+	lam.boot <- rep(NA,n.samp)#
+	for(i in 1:n.samp){#
+	  sample.index <- sample(1:nrow(dataset), size=dim(dataset)[1], replace=TRUE)#
+	  boot.data <- dataset[sample.index,]#
+	  mod.Grow <- lm(z1 ~ z, data = boot.data)#
+	  mod.Repr <- glm(Repr ~ z, family = binomial, data = boot.data)#
+	  sim.data.noRepr <- subset(boot.data, Repr==0)#
+	  mod.Surv <- glm(Surv ~ z, family = binomial, data = sim.data.noRepr)#
+	  no.surv <- sum(sim.data.noRepr$Surv)#
+	  sim.data.Repr <- subset(boot.data, Repr==1)#
+	  mod.Seeds <- glm(Seeds ~ z, family=poisson, data=sim.data.Repr)#
+	  no.repr <- sum(sim.data.Repr$Repr)#
+	  sim.data.Rec <- subset(boot.data, age==0)#
+	  mod.Rcsz <- lm(z ~ 1 , sim.data.Rec)#
+	  no.recs <- dim(sim.data.Rec)[1]#
+     m.par.est <- c(surv    = coef(mod.Surv),#
+               flow    = coef(mod.Repr),#
+               grow    = coef(mod.Grow),#
+               grow.sd = summary(mod.Grow)$sigma,#
+               rcsz    = coef(mod.Rcsz),#
+               rcsz.sd = summary(mod.Rcsz)$sigma,#
+               seed    = coef(mod.Seeds),#
+               p.r     = p.r)#
+   names(m.par.est) <- names(m.par.true)#
+#
+   IPM.est <- mk_K(nBigMatrix, m.par.est, -2.65, 4.5)#
+   lam.boot[i] <- Re(eigen(IPM.est$K)$values[1])#
+   cat(i,"   ",lam.boot[i],"  ",no.surv,"  ",no.repr,"  ",no.recs,"\n")#
+   }#
+return(lam.boot)#
+}#
+#
+n.pop.samples <- 5#
+for(pop in 1:n.pop.samples){#
+#
+init.pop.size <- 250; n.yrs <-50; #
+source("Monocarp Simulate IBM.R")#
+sim.data <- sim.data[sim.data$yr > 10,]#
+sim.data$yr <- sim.data$yr-10#
+sample.index <- sample(1:nrow(sim.data), size=1000, replace=FALSE)#
+sim.data <- sim.data[sample.index,]#
+boot.strap <- boot_lambda(sim.data,p.r=p.r.est)#
+#
+if(pop==1) {#
+        boot.data <- data.frame(boot.lam=boot.strap, pop=1)#
+    }else{#
+        boot.data <- rbind(boot.data,data.frame(boot.lam=boot.strap, pop=pop))#
+    }#
+}#
+#
+plot.1 <- densityplot(~Lambdas,plot.points=FALSE,xlim=c(0.8,1.3),bty="l")#
+plot.2 <- densityplot(~boot.lam,groups=pop,data=boot.data,plot.points=FALSE,xlim=c(0.8,1.3),bty="l")#
+grid.arrange(plot.1,plot.2,ncol=2)
+str(boot.data)
+pop=1;
+boot_lambda <- function(dataset,n.samp=250,p.r){#
+	lam.boot <- rep(NA,n.samp)#
+	for(i in 1:n.samp){#
+	  sample.index <- sample(1:nrow(dataset), size=dim(dataset)[1], replace=TRUE)#
+	  boot.data <- dataset[sample.index,]#
+	  mod.Grow <- lm(z1 ~ z, data = boot.data)#
+	  mod.Repr <- glm(Repr ~ z, family = binomial, data = boot.data)#
+	  sim.data.noRepr <- subset(boot.data, Repr==0)#
+	  mod.Surv <- glm(Surv ~ z, family = binomial, data = sim.data.noRepr)#
+	  no.surv <- sum(sim.data.noRepr$Surv)#
+	  sim.data.Repr <- subset(boot.data, Repr==1)#
+	  mod.Seeds <- glm(Seeds ~ z, family=poisson, data=sim.data.Repr)#
+	  no.repr <- sum(sim.data.Repr$Repr)#
+	  sim.data.Rec <- subset(boot.data, age==0)#
+	  mod.Rcsz <- lm(z ~ 1 , sim.data.Rec)#
+	  no.recs <- dim(sim.data.Rec)[1]#
+     m.par.est <- c(surv    = coef(mod.Surv),#
+               flow    = coef(mod.Repr),#
+               grow    = coef(mod.Grow),#
+               grow.sd = summary(mod.Grow)$sigma,#
+               rcsz    = coef(mod.Rcsz),#
+               rcsz.sd = summary(mod.Rcsz)$sigma,#
+               seed    = coef(mod.Seeds),#
+               p.r     = p.r)#
+   names(m.par.est) <- names(m.par.true)#
+#
+   IPM.est <- mk_K(nBigMatrix, m.par.est, -2.65, 4.5)#
+   lam.boot[i] <- Re(eigen(IPM.est$K)$values[1])#
+   cat(i,"   ",lam.boot[i],"  ",no.surv,"  ",no.repr,"  ",no.recs,"\n")#
+   }#
+return(lam.boot)#
+}
+pop=1;
+init.pop.size <- 250; n.yrs <-50; #
+   source("Monocarp Simulate IBM.R")#
+   sim.data <- sim.data[sim.data$yr > 10,]#
+   sim.data$yr <- sim.data$yr-10#
+   sample.index <- sample(1:nrow(sim.data), size=1000, replace=FALSE)#
+   sim.data <- sim.data[sample.index,]#
+   boot.strap <- boot_lambda(sim.data,n.samp=50,p.r=p.r.est)#
+#
+   if(pop==1) {#
+        boot.data <- data.frame(boot.lam=boot.strap, pop=1)#
+    }else{#
+        boot.data <- rbind(boot.data,data.frame(boot.lam=boot.strap, pop=pop))#
+    }
+n.pop.samples <- 5#
+for(pop in 1:n.pop.samples){#
+#
+   init.pop.size <- 250; n.yrs <-50; #
+   source("Monocarp Simulate IBM.R")#
+   sim.data <- sim.data[sim.data$yr > 10,]#
+   sim.data$yr <- sim.data$yr-10#
+   sample.index <- sample(1:nrow(sim.data), size=1000, replace=FALSE)#
+   sim.data <- sim.data[sample.index,]#
+   boot.strap <- boot_lambda(sim.data,n.samp=50,p.r=p.r.est)#
+#
+   if(pop==1) {#
+        boot.data <- data.frame(boot.lam=boot.strap, pop=1)#
+    }else{#
+        boot.data <- rbind(boot.data,data.frame(boot.lam=boot.strap, pop=pop))#
+    }#
+}
+n.pop.samples <- 5#
+for(pop in 1:n.pop.samples){#
+#
+   init.pop.size <- 250; n.yrs <-50; #
+   source("Monocarp Simulate IBM.R")#
+   sim.data <- sim.data[sim.data$yr > 10,]#
+   sim.data$yr <- sim.data$yr-10#
+   sample.index <- sample(1:nrow(sim.data), size=1000, replace=FALSE)#
+   sim.data <- sim.data[sample.index,]#
+   boot.strap <- boot_lambda(sim.data,n.samp=250,p.r=p.r.est)#
+#
+   if(pop==1) {#
+        boot.data <- data.frame(boot.lam=boot.strap, pop=1)#
+    }else{#
+        boot.data <- rbind(boot.data,data.frame(boot.lam=boot.strap, pop=pop))#
+    }#
+}
+plot.1 <- densityplot(~Lambdas,plot.points=FALSE,xlim=c(0.8,1.3),bty="l")#
+plot.2 <- densityplot(~boot.lam,groups=pop,data=boot.data,plot.points=FALSE,xlim=c(0.8,1.3),bty="l")#
+grid.arrange(plot.1,plot.2,ncol=2)
+set_graph_pars("panel2");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylim="Frequency")
+graphics.off()#
+set_graph_pars("panel2");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency")
+out=density(Lambdas,plot=FALSE)
+?density
+?hist
+graphics.off()#
+set_graph_pars("panel2");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",probability=TRUE);#
+out=density(Lambdas,bw="SJ")
+?hist
+names(out)
+graphics.off()#
+set_graph_pars("panel2");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE);#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l")
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE);#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")
+str(boot.data)
+range(boot.data$pop)
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE);#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7));#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7));#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7));#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7));#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7));#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")
+getwd()
+load("/Users/stephenellner/Repos/ipm_book/Rcode/c2/Shef.Rdata")
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")#
+for(j in 2:5){#
+Lam=boot.data$boot.lam[boot.data$pop==1];;#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lty=2);
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")#
+for(j in 2:5){#
+Lam=boot.data$boot.lam[boot.data$pop==j];;#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lty=2);	#
+}
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==2];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")#
+#
+for(j in c(1,3,4,5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==2];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")#
+#
+for(j in c(1,3,4,5)){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+?hist
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5)),col="grey50",border="grey50");#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==2];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")#
+#
+for(j in c(1,3,4,5)){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey50",border="grey50");#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==2];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")#
+#
+for(j in c(1,3,4,5)){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey50",border="grey25");#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==2];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",freq=FALSE,ylim=c(0,7.5));#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")#
+#
+for(j in c(1,3,4,5)){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==2];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey50",border="grey25");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l");#
+add_panel_label("b")#
+#
+for(j in c(1,3,4,5)){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==2];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in c(1,3,4,5)){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+m.par.est
+m.par.true
+IPM.est <- mk_K(nBigMatrix, m.par.true, -2.65, 4.5)#
+true.lambda = Re(eigen(IPM.est$K)$values[1])
+true.lambda
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); #
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+abline(v=true.lambda,lty=2,lwd=2)#
+#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=FALSE)#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+abline(v=true.lambda,lty=2,lwd=2)#
+#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=FALSE)#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,7.5),type="l",lty=2,lwd=2)#
+#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=FALSE)#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,7.2),type="l",lty=2,lwd=2)#
+#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=FALSE)#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,7),type="l",lty=2,lwd=2)#
+#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=FALSE)#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,7),type="l",lty=3,lwd=2)#
+#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=FALSE);#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2)#
+#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=FALSE,yaxs="i");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2)#
+#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.5),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=FALSE,yaxs="i");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2)#
+#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=TRUE,yaxs="i");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=2)#
+#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=TRUE,yaxs="i");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)#
+#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=TRUE,yaxs="i");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)#
+#
+add_panel_label("a")#
+#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)
+getwd()
+rm(list=ls(all=TRUE))#
+library(doBy)#
+set.seed(53241986)#
+setwd("~/Repos/ipm_book/Rcode/c2")#
+#
+source("Monocarp Demog Funs.R");#
+source("../utilities/Standard Graphical Pars.R");#
+nBigMatrix <- 250; p.r.est <- p.r <- 0.007; #
+#
+IPM.est <- mk_K(nBigMatrix, m.par.true, -2.65, 4.5)#
+true.lambda = Re(eigen(IPM.est$K)$values[1])#
+init.pop.size <- 1000; n.yrs <-75; #
+source("Monocarp Simulate IBM.R") #
+sim.data.big <- sim.data[sim.data$yr > 10,]#
+sim.data.big$yr <- sim.data.big$yr-10#
+No.sims <-250; #
+Lambdas <- rep(NA,No.sims)#
+#
+indices=sample(1:(No.sims*1000),replace=FALSE);#
+indices=matrix(indices,ncol=No.sims);#
+#
+for(i in 1:No.sims) {#
+sample.index <- indices[,i]; #
+sim.data <- sim.data.big[sample.index,]#
+mod.Grow <- lm(z1 ~ z, data = sim.data)#
+mod.Repr <- glm(Repr ~ z, family = binomial, data = sim.data)#
+sim.data.noRepr <- subset(sim.data, Repr==0)#
+mod.Surv <- glm(Surv ~ z, family = binomial, data = sim.data.noRepr)#
+no.surv <- sum(sim.data.noRepr$Surv)#
+sim.data.Repr <- subset(sim.data, Repr==1)#
+mod.Seeds <- glm(Seeds ~ z, family=poisson, data=sim.data.Repr)#
+no.repr <- sum(sim.data.Repr$Repr)#
+sim.data.Rec <- subset(sim.data, age==0)#
+mod.Rcsz <- lm(z ~ 1 , sim.data.Rec)#
+no.recs <- dim(sim.data.Rec)[1]#
+m.par.est <- c(surv    = coef(mod.Surv),#
+               flow    = coef(mod.Repr),#
+               grow    = coef(mod.Grow),#
+               grow.sd = summary(mod.Grow)$sigma,#
+               rcsz    = coef(mod.Rcsz),#
+               rcsz.sd = summary(mod.Rcsz)$sigma,#
+               seed    = coef(mod.Seeds),#
+               p.r     = p.r.est)#
+names(m.par.est) <- names(m.par.true)#
+IPM.est <- mk_K(nBigMatrix, m.par.est, -2.65, 4.5)#
+Lambdas[i] <- Re(eigen(IPM.est$K)$values[1])#
+cat(i,"   ",Lambdas[i],"  ",no.surv,"  ",no.repr,"  ",no.recs,"\n")#
+}#
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=TRUE,yaxs="i");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)#
+add_panel_label("a")#
+boot_lambda <- function(dataset,n.samp=250,p.r){#
+	lam.boot <- rep(NA,n.samp)#
+	for(i in 1:n.samp){#
+	  sample.index <- sample(1:nrow(dataset), size=dim(dataset)[1], replace=TRUE)#
+	  boot.data <- dataset[sample.index,]#
+	  mod.Grow <- lm(z1 ~ z, data = boot.data)#
+	  mod.Repr <- glm(Repr ~ z, family = binomial, data = boot.data)#
+	  sim.data.noRepr <- subset(boot.data, Repr==0)#
+	  mod.Surv <- glm(Surv ~ z, family = binomial, data = sim.data.noRepr)#
+	  no.surv <- sum(sim.data.noRepr$Surv)#
+	  sim.data.Repr <- subset(boot.data, Repr==1)#
+	  mod.Seeds <- glm(Seeds ~ z, family=poisson, data=sim.data.Repr)#
+	  no.repr <- sum(sim.data.Repr$Repr)#
+	  sim.data.Rec <- subset(boot.data, age==0)#
+	  mod.Rcsz <- lm(z ~ 1 , sim.data.Rec)#
+	  no.recs <- dim(sim.data.Rec)[1]#
+     m.par.est <- c(surv    = coef(mod.Surv),#
+               flow    = coef(mod.Repr),#
+               grow    = coef(mod.Grow),#
+               grow.sd = summary(mod.Grow)$sigma,#
+               rcsz    = coef(mod.Rcsz),#
+               rcsz.sd = summary(mod.Rcsz)$sigma,#
+               seed    = coef(mod.Seeds),#
+               p.r     = p.r)#
+   names(m.par.est) <- names(m.par.true)#
+#
+   IPM.est <- mk_K(nBigMatrix, m.par.est, -2.65, 4.5)#
+   lam.boot[i] <- Re(eigen(IPM.est$K)$values[1])#
+   cat(i,"   ",lam.boot[i],"  ",no.surv,"  ",no.repr,"  ",no.recs,"\n")#
+   }#
+return(lam.boot)#
+}#
+n.pop.samples <- 5#
+for(pop in 1:n.pop.samples){#
+  init.pop.size <- 250; n.yrs <-50; #
+  source("Monocarp Simulate IBM.R")#
+  sim.data <- sim.data[sim.data$yr > 10,]#
+  sim.data$yr <- sim.data$yr-10#
+  sample.index <- sample(1:nrow(sim.data), size=1000, replace=FALSE)#
+  sim.data <- sim.data[sample.index,]#
+  boot.strap <- boot_lambda(sim.data,n.samp=250,p.r=p.r.est)#
+#
+  if(pop==1) {#
+        boot.data <- data.frame(boot.lam=boot.strap, pop=1)#
+   }else{#
+        boot.data <- rbind(boot.data,data.frame(boot.lam=boot.strap, pop=pop))#
+   }#
+}#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)
+n.pop.samples <- 5#
+for(pop in 1:n.pop.samples){#
+  init.pop.size <- 500; n.yrs <-75; #
+  source("Monocarp Simulate IBM.R")#
+  sim.data <- sim.data[sim.data$yr > 10,]#
+  sim.data$yr <- sim.data$yr-10#
+  sample.index <- sample(1:nrow(sim.data), size=1000, replace=FALSE)#
+  sim.data <- sim.data[sample.index,]#
+  boot.strap <- boot_lambda(sim.data,n.samp=250,p.r=p.r.est)#
+#
+  if(pop==1) {#
+        boot.data <- data.frame(boot.lam=boot.strap, pop=1)#
+   }else{#
+        boot.data <- rbind(boot.data,data.frame(boot.lam=boot.strap, pop=pop))#
+   }#
+}#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)
+warnings()
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=TRUE,yaxs="i");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)#
+add_panel_label("a")
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)
+?bw
+?bw.SJ
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=TRUE,yaxs="i");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ",adjust=1.2);points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ",adjust=1.2);#
+  points(out$x,out$y,type="l",lty=2);	#
+}#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)
+n.pop.samples <- 5#
+for(pop in 1:n.pop.samples){#
+  init.pop.size <- 500; n.yrs <-75; #
+  source("Monocarp Simulate IBM.R")#
+  sim.data <- sim.data[sim.data$yr > 10,]#
+  sim.data$yr <- sim.data$yr-10#
+  sample.index <- sample(1:nrow(sim.data), size=1000, replace=FALSE)#
+  sim.data <- sim.data[sample.index,]#
+  boot.strap <- boot_lambda(sim.data,n.samp=250,p.r=p.r.est)#
+#
+  if(pop==1) {#
+        boot.data <- data.frame(boot.lam=boot.strap, pop=1)#
+   }else{#
+        boot.data <- rbind(boot.data,data.frame(boot.lam=boot.strap, pop=pop))#
+   }#
+}#
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=TRUE,yaxs="i");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ",adjust=1.2);points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ",adjust=1.2);#
+  points(out$x,out$y,type="l",lty=2);	#
+}#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)
+getwd()
+dev.copy2eps(file="MonocarpLambdaBootstrap.eps",type="eps")
+dev.copy2eps(file="MonocarpLambdaBootstrap.eps")
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=TRUE,yaxs="i");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)#
+dev.copy2eps(file="MonocarpLambdaBootstrap.eps",type="eps")
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=TRUE,yaxs="i");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)#
+dev.copy2eps(file="../../c2/figures/MonocarpLambdaBootstrap.eps",type="eps")
+graphics.off(); dev.new(width=8,height=4)#
+set_graph_pars("panel2"); par(xpd=TRUE,yaxs="i");#
+hist(Lambdas,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lambdas,bw="SJ"); points(out$x,out$y,type="l",lwd=2);#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)#
+add_panel_label("a")#
+Lam=boot.data$boot.lam[boot.data$pop==1];#
+hist(Lam,xlim=c(0.8,1.3),xlab="Estimated lambda",ylab="Frequency",main="",#
+freq=FALSE,ylim=c(0,7.75),col="grey60",border="grey35");#
+out=density(Lam,bw="SJ");points(out$x,out$y,type="l",lwd=2);#
+add_panel_label("b")#
+#
+for(j in 2:5){#
+  Lam=boot.data$boot.lam[boot.data$pop==j];;#
+  out=density(Lam,bw="SJ");#
+  points(out$x,out$y,type="l",lty=2);	#
+}#
+points(x=rep(true.lambda,2),y=c(0,0),type="p",pch=16,lwd=2,cex=1.5)#
+dev.copy2eps(file="../../c2/figures/MonocarpLambdaBootstrap.eps")
+require(car); require(mgcv); #
+#
+root=ifelse(.Platform$OS.type=="windows","c:/repos","~/Repos"); #
+setwd(paste(root,"/ipm_book/Rcode/c2",sep="")); #
+source("../utilities/Standard Graphical Pars.R");#
+#
+load("MonocarpSimData.Rdata")#
+pick.data <- seq(1,nrow(sim.data),length=300); #
+test.data <- sim.data[round(pick.data),];#
+test.data <- na.omit(subset(test.data,select=c(size,size1)));#
+e <- order(test.data$size); test.data <- test.data[e,]; #
+mod.grow <- lm(size1 ~ size, data = test.data);#
+cat(length(mod.grow$fitted)); #
+#
+set_graph_pars("panel4"); #
+zhat <- fitted(mod.grow); resid <- residuals(mod.grow);#
+plot(zhat,resid,xlab="Fitted values",ylab="Residuals"); #
+gam.resid <- gam(resid~s(zhat),method="REML"); #
+rhat <- predict(gam.resid,type="response"); #
+points(zhat,rhat,type="l");#
+add_panel_label("a")#
+sresid <- rstandard(mod.grow); #
+qqPlot(sresid,main="",xlab="Normal quantiles",ylab="Standardized residual quantiles",#
+       col.lines="black",lwd=1); #
+add_panel_label("b"); #
+plot(zhat,sqrt(abs(sresid)),xlab="Fitted values",ylab="sqrt(|Std Residuals|)");#
+gam.sresid <- gam(sqrt(abs(sresid))~s(zhat),method="REML");#
+rhat <- predict(gam.sresid,type="response"); #
+points(zhat,rhat,type="l");#
+add_panel_label("c"); #
+require(mgcv); #
+gam.grow <- gam(size1 ~ s(size), data = test.data, method="REML");#
+AIC(gam.grow,mod.grow);#
+gam.grow.fitted <- predict(gam.grow,type="response");#
+matplot(test.data$size,cbind(fitted(mod.grow),gam.grow.fitted),#
+      type="l",lty=c(1,2),lwd=2,xlab="Size t",ylab="Fitted size t+1")#
+add_panel_label("d"); #
+dev.copy2eps(file="../../c2/figures/DiagnoseMonocarp1.eps");
+rm(list=ls(all=TRUE))#
+require(Matrix); #
+setwd("c:/repos/ipm_book/Rcode/c6"); #
+source("domEig.R"); #
+source("../Utilities/MatrixImage.R"); #
+#
+vec <- function(nmat) matrix(nmat,ncol=1); #
+g_x <- function(xp,x,q) dnorm(xp,m=1 + q + 0.7*x,sd=0.3)  #
+g_q <- function(qp,q) dnorm(qp,m=0.5*q,sd=0.5)  #
+s_x <- function(x) exp(x-1)/(1+exp(x-1)) #
+c_x <- function(xp,x) dnorm(xp,mean=0.8+x/5,sd=0.35) #
+c_q <- function(qp) dnorm(qp,mean=0,sd=0.5) #
+p_xq <- function(xp,qp,x,q) s_x(x)*g_x(xp,x,q)*g_q(qp,q)#
+f_xq <- function(xp,qp,x,q) 0.75*s_x(x)*c_x(xp,x)*c_q(qp) #
+k_xq <- function(xp,qp,x,q) p_xq(xp,qp,x,q)+f_xq(xp,qp,x,q)      #
+mx <- 80; mq <- 50; #
+Lx <- (-1); Ux<- 7; Lq <- (-2.5); Uq <- (2.5); #
+hx <- (Ux-Lx)/mx; yx <- Lx + hx*((1:mx)-0.5);#
+hq <- (Uq-Lq)/mq; yq <- Lq + hq*((1:mq)-0.5);#
+eta_ij <- function(i,j,mx) {(j-1)*mx+i}#
+Eta <- outer(1:mx,1:mq,eta_ij,mx=mx); #
+#
+A=matrix(0,mx*mq,mx*mq); Kvals=array(0,c(mx,mq,mx,mq));  #
+for(i in 1:mx){#
+	for(j in 1:mq){#
+		for(k in 1:mq){#
+				kvals=k_xq(yx,yq[k],yx[i],yq[j])#
+				A[Eta[,k],Eta[i,j]]=kvals#
+				Kvals[,k,i,j]=kvals#
+	}}#
+	cat(i,"\n"); #
+}#
+A<-hx*hq*A;  #
+out<-domEig(A); out2<-domEig(t(A)); #
+lam.stable=out$lambda; lam.stable.t <- out2$lambda; #
+w <- Re(matrix(out$w,mx,mq)); #
+w <- w/(hx*hq*sum(w)); #
+v <- Re(matrix(out2$w,mx,mq)); v <- v/sum(v); #
+repro.val=matrix(v,mx,mq); stable.state=matrix(w,mx,mq); #
+v.dot.w=sum(hx*hq*stable.state*repro.val)#
+sens=outer(repro.val,stable.state)/v.dot.w#
+elas=sens*Kvals/lam.stable;#
+total.elas=hx*hq*apply(elas,c(3,4),sum); #
+cat("Forward and transpose iteration: ",lam.stable," should be the same as ",lam.stable.t,"\n");  #
+cat("Integrated elasticity =",sum(hx*hq*hx*hq*elas)," and it should = 1","\n"); #
+source("../Utilities/Standard Graphical Pars.R"); #
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+#
+add_panel_label("a"); #
+#
+matrix.image(stable.state,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("b"); #
+#
+matrix.image(repro.val,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("c"); #
+#
+matrix.image(total.elas,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("d"); #
+#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps"); #
+P=matrix(0,mx*mq,mx*mq); #
+for(i in 1:mx){#
+	for(j in 1:mq){#
+		for(k in 1:mq){#
+				P[Eta[,k],Eta[i,j]]=p_xq(yx,yq[k],yx[i],yq[j])#
+	}}#
+	cat(i,"\n"); #
+}#
+P<-hx*hq*P;
+rm(list=ls(all=TRUE))#
+require(Matrix); #
+setwd("~/repos/ipm_book/Rcode/c6"); #
+source("domEig.R"); #
+source("../Utilities/MatrixImage.R");
+rm(list=ls(all=TRUE))#
+require(Matrix); #
+setwd("~/repos/ipm_book/Rcode/c6"); #
+source("domEig.R"); #
+source("../Utilities/MatrixImage.R"); #
+#
+vec <- function(nmat) matrix(nmat,ncol=1); #
+g_x <- function(xp,x,q) dnorm(xp,m=1 + q + 0.7*x,sd=0.3)  #
+g_q <- function(qp,q) dnorm(qp,m=0.5*q,sd=0.5)  #
+s_x <- function(x) exp(x-1)/(1+exp(x-1)) #
+c_x <- function(xp,x) dnorm(xp,mean=0.8+x/5,sd=0.35) #
+c_q <- function(qp) dnorm(qp,mean=0,sd=0.5) #
+p_xq <- function(xp,qp,x,q) s_x(x)*g_x(xp,x,q)*g_q(qp,q)#
+f_xq <- function(xp,qp,x,q) 0.75*s_x(x)*c_x(xp,x)*c_q(qp) #
+k_xq <- function(xp,qp,x,q) p_xq(xp,qp,x,q)+f_xq(xp,qp,x,q)      #
+mx <- 80; mq <- 50; #
+Lx <- (-1); Ux<- 7; Lq <- (-2.5); Uq <- (2.5); #
+hx <- (Ux-Lx)/mx; yx <- Lx + hx*((1:mx)-0.5);#
+hq <- (Uq-Lq)/mq; yq <- Lq + hq*((1:mq)-0.5);#
+eta_ij <- function(i,j,mx) {(j-1)*mx+i}#
+Eta <- outer(1:mx,1:mq,eta_ij,mx=mx); #
+#
+A=matrix(0,mx*mq,mx*mq); Kvals=array(0,c(mx,mq,mx,mq));  #
+for(i in 1:mx){#
+	for(j in 1:mq){#
+		for(k in 1:mq){#
+				kvals=k_xq(yx,yq[k],yx[i],yq[j])#
+				A[Eta[,k],Eta[i,j]]=kvals#
+				Kvals[,k,i,j]=kvals#
+	}}#
+	cat(i,"\n"); #
+}#
+A<-hx*hq*A;  #
+out<-domEig(A); out2<-domEig(t(A)); #
+lam.stable=out$lambda; lam.stable.t <- out2$lambda; #
+w <- Re(matrix(out$w,mx,mq)); #
+w <- w/(hx*hq*sum(w)); #
+v <- Re(matrix(out2$w,mx,mq)); v <- v/sum(v); #
+repro.val=matrix(v,mx,mq); stable.state=matrix(w,mx,mq); #
+v.dot.w=sum(hx*hq*stable.state*repro.val)#
+sens=outer(repro.val,stable.state)/v.dot.w#
+elas=sens*Kvals/lam.stable;#
+total.elas=hx*hq*apply(elas,c(3,4),sum); #
+cat("Forward and transpose iteration: ",lam.stable," should be the same as ",lam.stable.t,"\n");  #
+cat("Integrated elasticity =",sum(hx*hq*hx*hq*elas)," and it should = 1","\n"); #
+source("../Utilities/Standard Graphical Pars.R"); #
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+#
+add_panel_label("a"); #
+#
+matrix.image(stable.state,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("b"); #
+#
+matrix.image(repro.val,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("c"); #
+#
+matrix.image(total.elas,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("d"); #
+#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps"); #
+P=matrix(0,mx*mq,mx*mq); #
+for(i in 1:mx){#
+	for(j in 1:mq){#
+		for(k in 1:mq){#
+				P[Eta[,k],Eta[i,j]]=p_xq(yx,yq[k],yx[i],yq[j])#
+	}}#
+	cat(i,"\n"); #
+}#
+P<-hx*hq*P;
+rm(list=ls(all=TRUE))#
+require(Matrix); #
+setwd("~/repos/ipm_book/Rcode/c6"); #
+source("domEig.R"); #
+source("../Utilities/MatrixImage.R");
+matrixImage
+objects()
+matrix.image
+rm(list=ls(all=TRUE))#
+require(Matrix); #
+setwd("~/repos/ipm_book/Rcode/c6"); #
+source("domEig.R"); #
+source("../Utilities/MatrixImage.R");
+rm(list=ls(all=TRUE))#
+require(Matrix); #
+setwd("~/repos/ipm_book/Rcode/c6"); #
+source("domEig.R"); #
+source("../Utilities/MatrixImage.R"); #
+#
+vec <- function(nmat) matrix(nmat,ncol=1); #
+g_x <- function(xp,x,q) dnorm(xp,m=1 + q + 0.7*x,sd=0.3)  #
+g_q <- function(qp,q) dnorm(qp,m=0.5*q,sd=0.5)  #
+s_x <- function(x) exp(x-1)/(1+exp(x-1)) #
+c_x <- function(xp,x) dnorm(xp,mean=0.8+x/5,sd=0.35) #
+c_q <- function(qp) dnorm(qp,mean=0,sd=0.5) #
+p_xq <- function(xp,qp,x,q) s_x(x)*g_x(xp,x,q)*g_q(qp,q)#
+f_xq <- function(xp,qp,x,q) 0.75*s_x(x)*c_x(xp,x)*c_q(qp) #
+k_xq <- function(xp,qp,x,q) p_xq(xp,qp,x,q)+f_xq(xp,qp,x,q)      #
+mx <- 80; mq <- 50; #
+Lx <- (-1); Ux<- 7; Lq <- (-2.5); Uq <- (2.5); #
+hx <- (Ux-Lx)/mx; yx <- Lx + hx*((1:mx)-0.5);#
+hq <- (Uq-Lq)/mq; yq <- Lq + hq*((1:mq)-0.5);#
+eta_ij <- function(i,j,mx) {(j-1)*mx+i}#
+Eta <- outer(1:mx,1:mq,eta_ij,mx=mx); #
+#
+A=matrix(0,mx*mq,mx*mq); Kvals=array(0,c(mx,mq,mx,mq));  #
+for(i in 1:mx){#
+	for(j in 1:mq){#
+		for(k in 1:mq){#
+				kvals=k_xq(yx,yq[k],yx[i],yq[j])#
+				A[Eta[,k],Eta[i,j]]=kvals#
+				Kvals[,k,i,j]=kvals#
+	}}#
+	cat(i,"\n"); #
+}#
+A<-hx*hq*A;  #
+out<-domEig(A); out2<-domEig(t(A)); #
+lam.stable=out$lambda; lam.stable.t <- out2$lambda; #
+w <- Re(matrix(out$w,mx,mq)); #
+w <- w/(hx*hq*sum(w)); #
+v <- Re(matrix(out2$w,mx,mq)); v <- v/sum(v); #
+repro.val=matrix(v,mx,mq); stable.state=matrix(w,mx,mq); #
+v.dot.w=sum(hx*hq*stable.state*repro.val)#
+sens=outer(repro.val,stable.state)/v.dot.w#
+elas=sens*Kvals/lam.stable;#
+total.elas=hx*hq*apply(elas,c(3,4),sum); #
+cat("Forward and transpose iteration: ",lam.stable," should be the same as ",lam.stable.t,"\n");  #
+cat("Integrated elasticity =",sum(hx*hq*hx*hq*elas)," and it should = 1","\n"); #
+source("../Utilities/Standard Graphical Pars.R"); #
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+#
+add_panel_label("a"); #
+#
+matrix.image(stable.state,yq,yx,xlab="Quality q",ylab="Size x",do.legend=TRUE);#
+#
+add_panel_label("b"); #
+#
+matrix.image(repro.val,yq,yx,xlab="Quality q",ylab="Size x",do.legend=TRUE);#
+#
+add_panel_label("c"); #
+#
+matrix.image(total.elas,yq,yx,xlab="Quality q",ylab="Size x",do.legend=TRUE);#
+#
+add_panel_label("d"); #
+#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps"); #
+P=matrix(0,mx*mq,mx*mq); #
+for(i in 1:mx){#
+	for(j in 1:mq){#
+		for(k in 1:mq){#
+				P[Eta[,k],Eta[i,j]]=p_xq(yx,yq[k],yx[i],yq[j])#
+	}}#
+	cat(i,"\n"); #
+}#
+P<-hx*hq*P;
+rm(list=ls(all=TRUE))#
+require(Matrix); #
+setwd("~/repos/ipm_book/Rcode/c6"); #
+source("domEig.R"); #
+source("../Utilities/MatrixImage.R"); #
+#
+vec <- function(nmat) matrix(nmat,ncol=1); #
+g_x <- function(xp,x,q) dnorm(xp,m=1 + q + 0.7*x,sd=0.3)  #
+g_q <- function(qp,q) dnorm(qp,m=0.5*q,sd=0.5)  #
+s_x <- function(x) exp(x-1)/(1+exp(x-1)) #
+c_x <- function(xp,x) dnorm(xp,mean=0.8+x/5,sd=0.35) #
+c_q <- function(qp) dnorm(qp,mean=0,sd=0.5) #
+p_xq <- function(xp,qp,x,q) s_x(x)*g_x(xp,x,q)*g_q(qp,q)#
+f_xq <- function(xp,qp,x,q) 0.75*s_x(x)*c_x(xp,x)*c_q(qp) #
+k_xq <- function(xp,qp,x,q) p_xq(xp,qp,x,q)+f_xq(xp,qp,x,q)      #
+mx <- 80; mq <- 50; #
+Lx <- (-1); Ux<- 7; Lq <- (-2.5); Uq <- (2.5); #
+hx <- (Ux-Lx)/mx; yx <- Lx + hx*((1:mx)-0.5);#
+hq <- (Uq-Lq)/mq; yq <- Lq + hq*((1:mq)-0.5);#
+eta_ij <- function(i,j,mx) {(j-1)*mx+i}#
+Eta <- outer(1:mx,1:mq,eta_ij,mx=mx); #
+#
+A=matrix(0,mx*mq,mx*mq); Kvals=array(0,c(mx,mq,mx,mq));  #
+for(i in 1:mx){#
+	for(j in 1:mq){#
+		for(k in 1:mq){#
+				kvals=k_xq(yx,yq[k],yx[i],yq[j])#
+				A[Eta[,k],Eta[i,j]]=kvals#
+				Kvals[,k,i,j]=kvals#
+	}}#
+	cat(i,"\n"); #
+}#
+A<-hx*hq*A;  #
+out<-domEig(A); out2<-domEig(t(A)); #
+lam.stable=out$lambda; lam.stable.t <- out2$lambda; #
+w <- Re(matrix(out$w,mx,mq)); #
+w <- w/(hx*hq*sum(w)); #
+v <- Re(matrix(out2$w,mx,mq)); v <- v/sum(v); #
+repro.val=matrix(v,mx,mq); stable.state=matrix(w,mx,mq); #
+v.dot.w=sum(hx*hq*stable.state*repro.val)#
+sens=outer(repro.val,stable.state)/v.dot.w#
+elas=sens*Kvals/lam.stable;#
+total.elas=hx*hq*apply(elas,c(3,4),sum); #
+cat("Forward and transpose iteration: ",lam.stable," should be the same as ",lam.stable.t,"\n");  #
+cat("Integrated elasticity =",sum(hx*hq*hx*hq*elas)," and it should = 1","\n"); #
+source("../Utilities/Standard Graphical Pars.R"); #
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+#
+add_panel_label("a"); #
+#
+matrix.image(stable.state,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("b"); #
+#
+matrix.image(repro.val,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("c"); #
+#
+matrix.image(total.elas,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("d"); #
+#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps"); #
+P=matrix(0,mx*mq,mx*mq); #
+for(i in 1:mx){#
+	for(j in 1:mq){#
+		for(k in 1:mq){#
+				P[Eta[,k],Eta[i,j]]=p_xq(yx,yq[k],yx[i],yq[j])#
+	}}#
+	cat(i,"\n"); #
+}#
+P<-hx*hq*P;
+matrix.image
+source("../Utilities/Standard Graphical Pars.R"); #
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+mar=c(6,5,3,2)#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+#
+add_panel_label("a"); #
+#
+matrix.image(stable.state,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("b"); #
+#
+matrix.image(repro.val,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("c"); #
+#
+matrix.image(total.elas,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("d"); #
+#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps");
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+par(mar=c(6,5,3,2))#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+#
+add_panel_label("a"); #
+#
+matrix.image(stable.state,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("b"); #
+#
+matrix.image(repro.val,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("c"); #
+#
+matrix.image(total.elas,yq,yx,xlab="Quality q",ylab="Size x",do.legend=FALSE);#
+#
+add_panel_label("d"); #
+#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps");
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+image(yx,yq,t(stable.state),col=grey(seq(0.6, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+image(yx,yq,tstable.state,col=grey(seq(0.6, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+image(yq,yx,t(stable.state),col=grey(seq(0.6, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+add_panel_label("a"); #
+#
+image(yq,yx,t(stable.state),col=grey(seq(0.6, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE)#
+add_panel_label("b")
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+add_panel_label("a"); #
+#
+image(yq,yx,t(stable.state),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE)#
+add_panel_label("b")
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+add_panel_label("a"); #
+#
+image(yq,yx,t(stable.state),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE)#
+add_panel_label("b")#
+image(yq,yx,t(repro.val),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE)#
+add_panel_label("c")#
+#
+image(yq,yx,t(total.elas),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE)#
+add_panel_label("d")#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps");
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+add_panel_label("a"); #
+#
+image(yq,yx,t(stable.state),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE)#
+add_panel_label("b")#
+image(yq,yx,t(repro.val),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(repro.val),add=TRUE)#
+add_panel_label("c")#
+#
+image(yq,yx,t(total.elas),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(total.elas),add=TRUE)
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+add_panel_label("a"); #
+#
+image(yq,yx,t(stable.state),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE)#
+add_panel_label("b")#
+#
+image(yq,yx,t(repro.val),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(repro.val),add=TRUE)#
+add_panel_label("c")#
+#
+image(yq,yx,t(total.elas),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(total.elas),add=TRUE)#
+add_panel_label("d")#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps");
+?contour
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+add_panel_label("a"); #
+#
+image(yq,yx,t(stable.state),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE,nlevels=6)#
+add_panel_label("b")#
+#
+image(yq,yx,t(repro.val),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(repro.val),add=TRUE,nlevels=6)#
+add_panel_label("c")#
+#
+image(yq,yx,t(total.elas),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(total.elas),add=TRUE,nlevels=6)#
+add_panel_label("d")#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps");
+source("../Utilities/Standard Graphical Pars.R"); #
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="frequency",type="l"); #
+add_panel_label("a"); #
+#
+image(yq,yx,t(stable.state),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE,nlevels=6)#
+add_panel_label("b")#
+#
+image(yq,yx,t(repro.val),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(repro.val),add=TRUE,nlevels=6)#
+add_panel_label("c")#
+#
+image(yq,yx,t(total.elas),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(total.elas),add=TRUE,nlevels=6)#
+add_panel_label("d")#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps");
+source("../Utilities/Standard Graphical Pars.R"); #
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="Frequency",type="l"); #
+add_panel_label("a"); #
+#
+image(yq,yx,t(stable.state),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE,nlevels=6)#
+add_panel_label("b")#
+#
+image(yq,yx,t(repro.val),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(repro.val),add=TRUE,nlevels=6)#
+add_panel_label("c")#
+#
+image(yq,yx,t(total.elas),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(total.elas),add=TRUE,nlevels=6)#
+add_panel_label("d")#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps");
+source("../Utilities/Standard Graphical Pars.R"); #
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="Frequency",type="l"); #
+add_panel_label("a"); #
+#
+image(yq,yx,t(stable.state),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE,nlevels=6)#
+add_panel_label("b")#
+#
+image(yq,yx,t(repro.val),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(repro.val),add=TRUE,nlevels=6)#
+add_panel_label("c")#
+#
+image(yq,yx,t(total.elas),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(total.elas),add=TRUE,nlevels=6,labcex = 0.8)#
+add_panel_label("d")#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps");
+source("../Utilities/Standard Graphical Pars.R"); #
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="Frequency",type="l"); #
+add_panel_label("a"); #
+#
+image(yq,yx,t(stable.state),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE,nlevels=6,labcex = 0.8)#
+add_panel_label("b")#
+#
+image(yq,yx,t(repro.val),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(repro.val),add=TRUE,nlevels=6,labcex = 0.8)#
+add_panel_label("c")#
+#
+image(yq,yx,t(total.elas),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(total.elas),add=TRUE,nlevels=6,labcex = 0.8)#
+add_panel_label("d")#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps");
+source("../Utilities/Standard Graphical Pars.R"); #
+graphics.off(); dev.new(); set_graph_pars("panel4"); #
+#
+plot(yx,apply(stable.state,1,sum),xlab="Size x",ylab="Frequency",type="l"); #
+add_panel_label("a"); #
+#
+image(yq,yx,t(stable.state),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(stable.state),add=TRUE,nlevels=6,labcex = 0.8)#
+add_panel_label("b")#
+#
+image(yq,yx,t(repro.val),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(repro.val),add=TRUE,nlevels=6,labcex = 0.8)#
+add_panel_label("c")#
+#
+image(yq,yx,t(total.elas),col=grey(seq(0.5, 1, length=100)),#
+      xlab="Quality q", ylab="Size x")#
+contour(yq,yx,t(total.elas),add=TRUE,nlevels=6,labcex = 0.8)#
+add_panel_label("d")#
+dev.copy2eps(file="../../c6/figures/SizeQualityEx.eps");

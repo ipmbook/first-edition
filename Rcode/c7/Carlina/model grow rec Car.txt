@@ -1,0 +1,67 @@
+model	{
+
+	for(i in 1:N1) {
+		Y[i]~dnorm(mu[i],prec.e)
+		mu[i]<-mu.A+alpha[group[i],1]+(B+B.g[group[i]])*X[i]
+		
+	}
+
+	for(i in (N1+1):N2) {
+		Y[i]~dnorm(mu[i],prec.er)
+		mu[i]<-mu.Ar+alpha[group[i],2]
+		
+	}
+
+	for(i in 1:ngroup){
+      		alpha[i,1]<-y[i]/pow(a,0.5)
+     		alpha[i,2]<-c1*y[i]+c2*x[i]
+     		x[i]~dnorm(0.0,1)
+     		y[i]~dnorm(0.0,1)
+		B.g[i]~dnorm(0,prec.B)
+	}
+
+	mu.A~dnorm(0,0.0001)
+	mu.Ar~dnorm(0,0.0001)
+
+	B~dnorm(0,0.0001) 
+
+	#prec.e~dunif(0.0025,2500)
+
+	#prec.er~dunif(0.0025,2500)
+
+	#prec.B~dunif(0.0025,2500)
+
+	prec.e~dgamma(0.001,0.001)
+
+	prec.er~dgamma(0.001,0.001)
+
+	prec.B~dgamma(0.001,0.001)
+
+
+	sd.e<-sqrt(1/prec.e)
+
+	sd.er<-sqrt(1/prec.er)
+
+	sd.B<-sqrt(1/prec.B)
+
+	rho~dunif(-1,1)
+
+	#a~dunif(0.0025,2500)
+
+	#b~dunif(0.0025,2500)
+
+	a~dgamma(0.001,0.001)
+
+	b~dgamma(0.001,0.001)
+
+	c1<-rho/pow(b,0.5)
+
+	c2<-pow(1/b-pow(c1,2),0.5)
+
+	sd.A<-pow(1/a,0.5)
+
+	sd.Ar<-pow(pow(c1,2)+pow(c2,2),0.5)
+	
+}	
+	
+

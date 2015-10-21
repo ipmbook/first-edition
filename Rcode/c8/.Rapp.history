@@ -1,0 +1,939 @@
+(1.5)^12;
+(1.4)^12;
+5^12;
+log10(5^12);
+log10(2^12);
+2^12;
+3^12;
+?Weibull
+plot(function(x) dweibull)
+?Weibull
+plot(function(x) dweibull(x,shape=2), -3,3)
+?Weibull
+integrate(function(x) exp(-x^3),0,Inf)$values
+integrate(function(x) exp(-x^3),0,Inf)$value
+integrate(function(x) exp(-x^1),0,Inf)$value
+integrate(function(x) exp(-x^0.2),0,Inf)$value
+integrate(function(x) exp(-x^0.01),0,Inf)$value
+integrate(function(x) exp(-x^0.02),0,Inf)$value
+integrate(function(x) exp(-x^0.2),0,Inf)$value
+integrate(function(x) exp(-x^0.5),0,Inf)$value
+integrate(function(x) exp(-x^1.5),0,Inf)$value
+plot(function(x) exp(-x^1.5),-3,3)
+plot(function(x) exp(-abs(x)^1.5),-3,3)
+plot(function(x) exp(-abs(x)^2.5),-3,3)
+plot(function(x) exp(-abs(x)^2.5),-3,3);
+?beta
+?dbeta
+plot(dbeta(x,3,3),-1,1)
+plot(function(x) dbeta(x,3,3),-1,1)
+plot(function(x) dbeta(x,3,3),0,1)
+plot(function(x) dbeta(x,12,12),0,1)
+plot(function(x) log(dbeta(x,12,12),0,1))
+plot(function(x) log(dbeta(x,12,12)),0,1)
+plot(function(x) log(dbeta(x,1,1)),0,1)
+plot(function(x) log(dbeta(x,2,2)),0,1)
+plot(function(x) log(dbeta(x,12,12)),0,1)
+plot(function(x) log(dbeta(x,120,120)),0,1)
+plot(function(x) (dbeta(x,120,120)),0,1)
+plot(function(x) (dbeta(x,120,120)),0,2)
+integrate(function(x) (dbeta(x/2,2,2)),-Inf,Inf)
+integrate(function(x) (dbeta(x/5,2,2)),-Inf,Inf)
+?dt
+require(mgcv)
+?gam
+x=runif(100); y=x+0.2*runif(100); require(mgcv);
+fit=gam(y~s(x));
+summary(fit)
+AIC(fit)
+fit=lm(y~x);
+AIC(fit)
+x=runif(100); y=x+0.02*x^2+0.2*runif(100); require(mgcv);
+fit=gam(y~s(x));
+fit0=lm(y~x);
+AIC(fit,fit0)
+plot(x,y)
+plot(fit)
+plot(x,y)
+abline(fit0)
+plot(residuals(fit),residuals(fit0))
+summary(fit)
+fit=gam(y~x+s(x));
+summary(fit)
+plot(fit)
+plot(fitted(fit),fitted(fit0))
+abline(0,1)
+fit=gam(y~I(x)+s(x));
+summary(fit);
+AIC(fit)
+AIC(fit0)
+x <- runif(100); y <- x + 0.05*x^2 + 0.2*rnorm(100); plot(x,y);#
+require(mgcv); fit <- gam(y~x+s(x)); summary(fit)
+plot(fit);
+x <- runif(100); y <- x + 0.05*x^2 + 0.2*rnorm(100); plot(x,y);#
+require(mgcv); fit <- gam(y~x+s(x)); summary(fit)
+x <- runif(100); y <- x + 0.05*x^2 + 0.2*rnorm(100); plot(x,y);#
+require(mgcv); fit <- gam(y~x+s(x)); summary(fit)l
+require(mgcv); fit <- gam(y~x+s(x)); summary(fit);
+fit2 <- lm(y~x+I(x^2)); summary(fit2);
+x <- runif(100); y <- x + 0.05*x^2 + 0.2*rnorm(100); plot(x,y);#
+require(mgcv); fit <- gam(y~x+s(x)); summary(fit);#
+fit2 <- lm(y~x+I(x^2)); summary(fit2);
+?gam
+x <- runif(100); y <- x + 0.05*x^2 + 0.2*rnorm(100); plot(x,y);#
+require(mgcv); fit <- gam(y~s(x)); summary(fit);#
+fit2 <- lm(y~x+I(x^2)); summary(fit2);
+x <- runif(100); y <- x + 0.1*x^2 + 0.2*rnorm(100); plot(x,y);#
+require(mgcv); fit <- gam(y~s(x)); summary(fit);#
+fit2 <- lm(y~x+I(x^2)); summary(fit2);
+plot(fit)
+x <- runif(100); y <- x + 0.1*x^2 + 0.2*rnorm(100); #
+require(mgcv); fit <- gam(y~s(x)); #
+plot(x,y);#
+yhat.gam <- predict(fit,data.frame(x=seq(0,1,length=100),type="response")#
+plot(seq(0,1,length=100),yhat.gam,type="l",col="blue");#
+abline(lm(y~x))
+x <- runif(100); y <- x + 0.1*x^2 + 0.2*rnorm(100); #
+require(mgcv); fit <- gam(y~s(x)); #
+plot(x,y);#
+yhat.gam <- predict(fit,data.frame(x=seq(0,1,length=100)),type="response")#
+plot(seq(0,1,length=100),yhat.gam,type="l",col="blue");#
+abline(lm(y~x))
+x <- runif(100); y <- x + 0.1*x^2 + 0.2*rnorm(100); #
+require(mgcv); fit <- gam(y~s(x)); #
+plot(x,y);#
+yhat.gam <- predict(fit,data.frame(x=seq(0,1,length=100)),type="response")#
+#
+abline(lm(y~x))#
+plot(seq(0,1,length=100),yhat.gam,type="l",col="blue",lty=2,lwd=2);
+x <- runif(100); y <- x + 0.1*x^2 + 0.2*rnorm(100); #
+require(mgcv); fit <- gam(y~s(x)); #
+plot(x,y);#
+yhat.gam <- predict(fit,data.frame(x=seq(0,1,length=100)),type="response")#
+points(seq(0,1,length=100),yhat.gam,type="l",col="blue",lty=2,lwd=2);#
+abline(lm(y~x))
+x <- runif(100); y <- x + 0.1*x^2 + 0.1*rnorm(100); #
+require(mgcv); fit <- gam(y~s(x)); #
+plot(x,y);#
+yhat.gam <- predict(fit,data.frame(x=seq(0,1,length=100)),type="response")#
+points(seq(0,1,length=100),yhat.gam,type="l",col="blue",lty=2,lwd=2);#
+abline(lm(y~x))
+x <- runif(100); y <- x + 0.2*x^2 + 0.1*rnorm(100); #
+require(mgcv); fit <- gam(y~s(x)); #
+plot(x,y);#
+yhat.gam <- predict(fit,data.frame(x=seq(0,1,length=100)),type="response")#
+points(seq(0,1,length=100),yhat.gam,type="l",col="blue",lty=2,lwd=2);#
+abline(lm(y~x))
+x <- runif(100); y <- x + 0.5*x^2 + 0.1*rnorm(100); #
+require(mgcv); fit <- gam(y~s(x)); #
+plot(x,y);#
+yhat.gam <- predict(fit,data.frame(x=seq(0,1,length=100)),type="response")#
+points(seq(0,1,length=100),yhat.gam,type="l",col="blue",lty=2,lwd=2);#
+abline(lm(y~x))
+x <- runif(100); y <- x + 0.5*(x>0.5)*(x-0.5)^2 + 0.1*rnorm(100); #
+require(mgcv); fit <- gam(y~s(x)); #
+plot(x,y);#
+yhat.gam <- predict(fit,data.frame(x=seq(0,1,length=100)),type="response")#
+points(seq(0,1,length=100),yhat.gam,type="l",col="blue",lty=2,lwd=2);#
+abline(lm(y~x))
+summary(fit)
+require(gamlss)
+?TF
+16.25/15;
+x=seq(0.2,5,length=100); plot(log(x),sqrt(x))
+x=seq(0.2,5,length=100); plot(sqrt(x),log(x))
+fit=lm(log(x)~sqrt(x));
+abline(fit)
+summary(fit)
+require(pomp)
+citation(pomp)
+citation("pomp")
+require(collocInfer)
+require(CollocInfer)
+citation("CollocInfer")
+citation();
+require(mgcv)
+citation(mgcv)
+citation("mgcv")
+2250*6;
+750+250+(150*4);
+0.0556*52;
+1/0.0556
+1/9;
+13500/2;
+(2000+2250+4250)*3;
+require(lme4)
+require(randomForest)
+rfNews();
+require(randomForest)
+?randomForest
+plot(function(x) dlnorm(x,meanlog=1,sdlog=1), 0,5);
+plot(function(x) dlnorm(x,meanlog=1,sdlog=1), 0,25);
+plot(function(x) log(dlnorm(x,meanlog=1,sdlog=1)), 0,25);
+plot(function(x) log(dlnorm(x,meanlog=1,sdlog=1)), 0,250);
+plot(function(x) log(dlnorm(x,meanlog=1,sdlog=1)), 0,1250);
+?dlnorm
+a11=0.5; a21=0.5; a12=2; a22=0.8;  A=matrix(c(a11,a12,a21,a22),2,2,byrow=TRUE);  sigmaS=4; sigmaL=10;
+sigmaS
+cs = Vectorize(cs,"s");
+setwd("~/Repos/ipm_book/Rcode/c8"); #
+source("../c2/Monocarp Demog Funs.R")
+WALDmgf <- function(s,w.par) {#
+    nu <- w.par["r.nu"];#
+    lambda <- w.par["r.lambda"];#
+    t1 <- (lambda/nu); #
+    t2 <- 2*(nu^2)*s/lambda; #
+    mgf <- exp(t1*(1-sqrt(1-t2)));#
+    return(mgf)#
+}    #
+margWaldmgf <- function(s,w.par) {#
+  out=integrate(function(theta) WALDmgf(s*cos(theta),w.par), lower=0,upper=pi)$value;#
+  return(out/pi)#
+}#
+margWALDmgf <- Vectorize(margWALDmgf,vectorize.args="s"); #
+s.max <- function(w.par) {#
+  nu <- w.par["r.nu"];#
+  lambda <- w.par["r.lambda"];#
+  return(lambda/(2*nu*nu)); #
+}
+margWALDmgf <- function(s,w.par) {#
+  out=integrate(function(theta) WALDmgf(s*cos(theta),w.par), lower=0,upper=pi)$value;#
+  return(out/pi)#
+}#
+margWALDmgf <- Vectorize(margWALDmgf,vectorize.args="s"); #
+s.max <- function(w.par) {#
+  nu <- w.par["r.nu"];#
+  lambda <- w.par["r.lambda"];#
+  return(lambda/(2*nu*nu)); #
+}
+mk_K
+L <- (-2.65); U <- 4; #
+lamDefault <- 7; mu.default <- 3; #
+#
+H_z <- function(z) pmax(z,2)  #
+lam_z <- function(z) lamDefault*(H_z(z)/3) #
+mu_z <- function(z)  mu.default*(H_z(z)/3)^2;
+plot(lam_z,0,5)
+plot(mu_z,0,5)
+plot(mu_z,0,4.65)
+m.par
+source("../c2/Monocarp Demog Funs.R")
+m.par.true
+objects()
+mk_K
+out=mk_K(100,m.par.true,L,U);
+L
+U
+eigen(out$K)$values[1]
+setwd("~/Repos/ipm_book/Rcode/c8"); #
+source("../c2/Monocarp Demog Funs.R")#
+L <- (-2.65); U <- 4; #
+H_z <- function(z) pmax(z,2)  #
+lam_z <- function(z) 7*(H_z(z)/3) #
+mu_z <- function(z)  3*(H_z(z)/3)^2; #
+WALDmgf <- function(s,w.par) {#
+    mu <- w.par["r.mu"];#
+    lambda <- w.par["r.lambda"];#
+    t1 <- (lambda/mu); #
+    t2 <- 2*(mu^2)*s/lambda; #
+    mgf <- exp(t1*(1-sqrt(1-t2)));#
+    return(mgf)#
+}    #
+margWALDmgf <- function(s,w.par) {#
+  out=integrate(function(theta) WALDmgf(s*cos(theta),w.par), lower=0,upper=pi)$value;#
+  return(out/pi)#
+}#
+margWALDmgf <- Vectorize(margWALDmgf,vectorize.args="s"); #
+s.max <- function(w.par) {#
+  mu <- w.par["r.mu"];#
+  lambda <- w.par["r.lambda"];#
+  return(lambda/(2*mu*mu)); #
+}
+3. Function to compute the transformed kernel #
+#
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts#
+	for(j in 1:m) {#
+		w.par <- c(mu_z(zvals[j]),lam_z([zvals[j]))#
+		names(w.par) <- c("r.mu","r.lambda")#
+	    Fs[,j] <- Fs[j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}#
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = max(abs(eigen(M)$values)); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,2);
+3. Function to compute the transformed kernel #
+#
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		lam <- lam_z(zvals[j])#
+		w.par <- c(mu,lam); #
+		names(w.par) <- c("r.mu","r.lambda")#
+	    Fs[,j] <- Fs[j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}#
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = max(abs(eigen(M)$values)); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,2);
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		lam <- lam_z(zvals[j])#
+		w.par <- c(mu,lam); #
+		names(w.par) <- c("r.mu","r.lambda")#
+	    Fs[,j] <- Fs[j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}
+margWALDmgf <- function(s,w.par) {#
+  out=integrate(function(theta) WALDmgf(s*cos(theta),w.par), lower=0,upper=pi)$value;#
+  return(out/pi)#
+}#
+margWALDmgf <- Vectorize(margWALDmgf,vectorize.args="s"); #
+s.max <- function(w.par) {#
+  mu <- w.par["r.mu"];#
+  lambda <- w.par["r.lambda"];#
+  return(lambda/(2*mu*mu)); #
+}  #
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		lam <- lam_z(zvals[j])#
+		w.par <- c(mu,lam); #
+		names(w.par) <- c("r.mu","r.lambda")#
+	    Fs[,j] <- Fs[j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}
+A <- Hs(0.02,100,m.par.true,L,U)
+image(A)
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = max(abs(eigen(M)$values)); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,2);
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = max(abs(eigen(M)$values)); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,1);
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = max(abs(eigen(M)$values)); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.01,0.1);
+M <- Hs(0,100,m.par.true,L,U)
+eigen(M)$values[1]
+WALDmgf
+w.par
+w.par <- c(3,7);#
+names(w.par) <- c("r.mu","r.lambda")#
+margWALD(0,w.par)
+WALDmgf <- function(s,w.par) {#
+    mu <- w.par["r.mu"];#
+    lambda <- w.par["r.lambda"];#
+    t1 <- (lambda/mu); #
+    t2 <- 2*(mu^2)*s/lambda; #
+    mgf <- exp(t1*(1-sqrt(1-t2)));#
+    return(mgf)#
+}    #
+margWALDmgf <- function(s,w.par) {#
+  out=integrate(function(theta) WALDmgf(s*cos(theta),w.par), lower=0,upper=pi)$value;#
+  return(out/pi)#
+}#
+margWALDmgf <- Vectorize(margWALDmgf,vectorize.args="s"); #
+w.par <- c(3,7);#
+names(w.par) <- c("r.mu","r.lambda")#
+WALDmgf(0,w.par)
+w.par <- c(3,7);#
+names(w.par) <- c("r.mu","r.lambda")#
+WALDmgf(0,w.par)#
+margWALDmgf(0,w.par)
+s.max <- function(w.par) {#
+  mu <- w.par["r.mu"];#
+  lambda <- w.par["r.lambda"];#
+  return(lambda/(2*mu*mu)); #
+}
+s.max(w.par)
+mk_K
+source("../c2/Monocarp Demog Funs.R")#
+L <- (-2.65); U <- 4; #
+out <- mk_K(100,m.par.true,L,U);#
+eigen(out$K)$values[1];
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		lam <- lam_z(zvals[j])#
+		w.par <- c(mu,lam); #
+		names(w.par) <- c("r.mu","r.lambda")#
+	    Fs[,j] <- Fs[j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}#
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.01,0.1);
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }
+cs(0.001,100,m.par.true,L.U)
+cs(0.001,100,m.par.true,L,U)
+M<-Hs(0.001,100,m.par.true,L,U)
+eigen(M)$values[1]
+M<-Hs(0.000001,100,m.par.true,L,U)
+eigen(M)$values[1]
+M<-Hs(0,100,m.par.true,L,U)
+eigen(M)$values
+eigen(M)$values[1]
+plot(mu_z(zvals));
+image(M)
+zvals
+out<-mk_K(100,m.par.true,L,U);
+out$meshpts
+m=100; m.par=m.par.true
+s=0;
+out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts;
+eigen(P+Fs)$values[1]
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts;#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		lam <- lam_z(zvals[j])#
+		w.par <- c(mu,lam); #
+		names(w.par) <- c("r.mu","r.lambda")#
+	    Fs[,j] <- Fs[,j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}#
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.01,0.1);
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.01,0.2);
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.01,0.15);
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.02,0.15);
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.16);
+out=optimize(cs,lower=0.05,upper=0.16); #
+cat(out$objective,"\n");
+out=optimize(cs,lower=0.05,upper=0.16,m=100,m.par=m.par.true,L=L,U=U); #
+cat(out$objective,"\n");
+out$value
+names(out)
+out$minimum
+H_z <- function(z) pmax(z/3,0)  #
+lam_z <- function(z) 7*H_z(z)#
+mu_z <- function(z)  3*(H_z(z)^2);
+plot(lam_z,-3,5)
+plot(mu_z,-3,5)
+lam_z <- function(z) {z1=pmax(z/3,0); 7*z1}#
+mu_z <- function(z)  {z1=pmax(z/3,0); 3*z1^2};
+plot(mu_z,-3,5)
+plot(lam_z,-3,5)
+lam_z <- function(z) {z1=pmax(z/3,0); 7*z1}#
+mu_z <- function(z)  {z1=pmax(z/3,0); 3*z1^2}; #
+WALDmgf <- function(s,w.par) {#
+    mu <- w.par["r.mu"];#
+    lambda <- w.par["r.lambda"];#
+    t1 <- (lambda/mu); #
+    t2 <- 2*(mu^2)*s/lambda; #
+    mgf <- exp(t1*(1-sqrt(1-t2)));#
+    return(mgf)#
+}    #
+margWALDmgf <- function(s,w.par) {#
+  out=integrate(function(theta) WALDmgf(s*cos(theta),w.par), lower=0,upper=pi)$value;#
+  return(out/pi)#
+}#
+margWALDmgf <- Vectorize(margWALDmgf,vectorize.args="s"); #
+w.par <- c(3,7); names(w.par) <- c("r.mu","r.lambda")#
+WALDmgf(0,w.par); margWALDmgf(0,w.par)#
+s.max <- function(w.par) {#
+  mu <- w.par["r.mu"];#
+  lambda <- w.par["r.lambda"];#
+  return(lambda/(2*mu*mu)); #
+}  #
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts;#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		lam <- lam_z(zvals[j])#
+		w.par <- c(mu,lam); #
+		names(w.par) <- c("r.mu","r.lambda")#
+	    Fs[,j] <- Fs[,j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}#
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.16);#
+out=optimize(cs,lower=0.05,upper=0.16,m=100,m.par=m.par.true,L=L,U=U); #
+cat(out$objective,"\n"); #
+cat(spread.rate,"\n");
+setwd("~/Repos/ipm_book/Rcode/c8"); #
+source("../c2/Monocarp Demog Funs.R")#
+L <- (-2.65); U <- 4; #
+out <- mk_K(100,m.par.true,L,U);#
+eigen(out$K)$values[1]; #
+lam_z <- function(z) {z1=pmax(z/3,0); 7*z1}#
+mu_z <- function(z)  {z1=pmax(z/3,0); 3*z1^2}; #
+WALDmgf <- function(s,w.par) {#
+    mu <- w.par["r.mu"];#
+    lambda <- w.par["r.lambda"];#
+    t1 <- (lambda/mu); #
+    t2 <- 2*(mu^2)*s/lambda; #
+    mgf <- exp(t1*(1-sqrt(1-t2)));#
+    return(mgf)#
+}    #
+margWALDmgf <- function(s,w.par) {#
+  out=integrate(function(theta) WALDmgf(s*cos(theta),w.par), lower=0,upper=pi)$value;#
+  return(out/pi)#
+}#
+margWALDmgf <- Vectorize(margWALDmgf,vectorize.args="s"); #
+w.par <- c(3,7); names(w.par) <- c("r.mu","r.lambda")#
+WALDmgf(0,w.par); margWALDmgf(0,w.par)#
+s.max <- function(w.par) {#
+  mu <- w.par["r.mu"];#
+  lambda <- w.par["r.lambda"];#
+  return(lambda/(2*mu*mu)); #
+}  #
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts;#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		lam <- lam_z(zvals[j])#
+		w.par <- c(mu,lam); #
+		names(w.par) <- c("r.mu","r.lambda")#
+	    Fs[,j] <- Fs[,j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}#
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.16);
+w.par <- c(3,7); names(w.par) <- c("r.mu","r.lambda")#
+WALDmgf(0,w.par); margWALDmgf(0,w.par)
+s.max(w.par)
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts;#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		lam <- lam_z(zvals[j])#
+		w.par <- c(mu,lam); #
+		names(w.par) <- c("r.mu","r.lambda")#
+	    Fs[,j] <- Fs[,j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}#
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.1);
+cs(0,100,m.par.true,L,U)
+cs(0.001,100,m.par.true,L,U)
+w.par
+WALDmgf(0,w.par)
+WALDmgf(0.001,w.par)
+WALDmgf(0.1,w.par)
+WALDmgf(0.2,w.par)
+WALDmgf(0.3,w.par)
+margWALDmgf(0.3,w.par)
+margWALDmgf(0.31,w.par)
+margWALDmgf(0.35,w.par)
+m <- 100;
+s<-0.01
+m.par <- m.par.true
+out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts;
+zvals
+eigen(P+Fs)$values[1]
+for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		lam <- lam_z(zvals[j])#
+		w.par <- c(mu,lam); #
+		names(w.par) <- c("r.mu","r.lambda")#
+	    Fs[,j] <- Fs[,j]*margWALDmgf(s,w.par)#
+	}
+w.par
+setwd("~/Repos/ipm_book/Rcode/c8"); #
+source("../c2/Monocarp Demog Funs.R")#
+L <- (-2.65); U <- 4; #
+out <- mk_K(100,m.par.true,L,U);#
+eigen(out$K)$values[1]; #
+lam_z <- function(z) {z1=pmax(z/3,0.1); 7*z1}#
+mu_z <- function(z)  {z1=pmax(z/3,0.1); 3*z1^2}; #
+WALDmgf <- function(s,w.par) {#
+    mu <- w.par["r.mu"];#
+    lambda <- w.par["r.lambda"];#
+    t1 <- (lambda/mu); #
+    t2 <- 2*(mu^2)*s/lambda; #
+    mgf <- exp(t1*(1-sqrt(1-t2)));#
+    return(mgf)#
+}    #
+margWALDmgf <- function(s,w.par) {#
+  out=integrate(function(theta) WALDmgf(s*cos(theta),w.par), lower=0,upper=pi)$value;#
+  return(out/pi)#
+}#
+margWALDmgf <- Vectorize(margWALDmgf,vectorize.args="s"); #
+w.par <- c(3,7); names(w.par) <- c("r.mu","r.lambda")#
+WALDmgf(0,w.par); margWALDmgf(0,w.par)#
+s.max <- function(w.par) {#
+  mu <- w.par["r.mu"];#
+  lambda <- w.par["r.lambda"];#
+  return(lambda/(2*mu*mu)); #
+}  #
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts;#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		lam <- lam_z(zvals[j])#
+		w.par <- c(mu,lam); #
+		names(w.par) <- c("r.mu","r.lambda")#
+	    Fs[,j] <- Fs[,j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}#
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.1);#
+out=optimize(cs,lower=0.05,upper=0.16,m=100,m.par=m.par.true,L=L,U=U); #
+cat(out$objective,"\n"); #
+cat(spread.rate,"\n");
+names(out)
+out$objective
+out$minimum
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.16);
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.2);
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.16);#
+out=optimize(cs,lower=0.05,upper=0.16,m=100,m.par=m.par.true,L=L,U=U); #
+cat("Wave speed cstar =",out$objective,"\n"); #
+cat("Wave shape parameter s =",out$minimum,"\n");
+setwd("~/Repos/ipm_book/Rcode/c8"); #
+source("../c2/Monocarp Demog Funs.R")#
+L <- (-2.65); U <- 4; #
+out <- mk_K(100,m.par.true,L,U);#
+eigen(out$K)$values[1]; #
+tau_z <- function(z) {z1=pmax(z/3,0.1); 7*z1*z1}#
+mu_z <- function(z)  {z1=pmax(z/3,0.1); 3*z1}; #
+WALDmgf <- function(s,w.par) {#
+    mu <- w.par["r.mu"];#
+    tau <- w.par["r.tau"];#
+    t1 <- (tau/mu); #
+    t2 <- 2*(mu^2)*s/tau; #
+    mgf <- exp(t1*(1-sqrt(1-t2)));#
+    return(mgf)#
+}    #
+margWALDmgf <- function(s,w.par) {#
+  (1/pi)*integrate(function(theta) WALDmgf(s*cos(theta),w.par), lower=0,upper=pi)$value;#
+}#
+margWALDmgf <- Vectorize(margWALDmgf,vectorize.args="s"); #
+#
+w.par <- c(3,7); names(w.par) <- c("r.mu","r.tau")#
+WALDmgf(0,w.par); margWALDmgf(0,w.par)#
+s.max <- function(w.par) {#
+  mu <- w.par["r.mu"];#
+  tau <- w.par["r.tau"];#
+  return(tau/(2*mu*mu)); #
+}  #
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts;#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		lam <- tau_z(zvals[j])#
+		w.par <- c(mu,tau); #
+		names(w.par) <- c("r.mu","r.tau")#
+	    Fs[,j] <- Fs[,j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}#
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.16);#
+out=optimize(cs,lower=0.05,upper=0.16,m=100,m.par=m.par.true,L=L,U=U); #
+cat("Wave speed cstar =",out$objective,"\n"); #
+cat("Wave shape parameter s =",out$minimum,"\n");
+setwd("~/Repos/ipm_book/Rcode/c8"); #
+source("../c2/Monocarp Demog Funs.R")#
+L <- (-2.65); U <- 4; #
+out <- mk_K(100,m.par.true,L,U);#
+eigen(out$K)$values[1]; #
+tau_z <- function(z) {z1=pmax(z/3,0.1); 7*z1*z1}#
+mu_z <- function(z)  {z1=pmax(z/3,0.1); 3*z1}; #
+WALDmgf <- function(s,w.par) {#
+    mu <- w.par["r.mu"];#
+    tau <- w.par["r.tau"];#
+    t1 <- (tau/mu); #
+    t2 <- 2*(mu^2)*s/tau; #
+    mgf <- exp(t1*(1-sqrt(1-t2)));#
+    return(mgf)#
+}    #
+margWALDmgf <- function(s,w.par) {#
+  (1/pi)*integrate(function(theta) WALDmgf(s*cos(theta),w.par), lower=0,upper=pi)$value;#
+}#
+margWALDmgf <- Vectorize(margWALDmgf,vectorize.args="s"); #
+#
+w.par <- c(3,7); names(w.par) <- c("r.mu","r.tau")#
+WALDmgf(0,w.par); margWALDmgf(0,w.par)#
+s.max <- function(w.par) {#
+  mu <- w.par["r.mu"];#
+  tau <- w.par["r.tau"];#
+  return(tau/(2*mu*mu)); #
+}  #
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts;#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		tau <- tau_z(zvals[j])#
+		w.par <- c(mu,tau); #
+		names(w.par) <- c("r.mu","r.tau")#
+	    Fs[,j] <- Fs[,j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}#
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.16);#
+out=optimize(cs,lower=0.05,upper=0.16,m=100,m.par=m.par.true,L=L,U=U); #
+cat("Wave speed cstar =",out$objective,"\n"); #
+cat("Wave shape parameter s =",out$minimum,"\n");
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.2);
+out=optimize(cs,lower=0.05,upper=0.16,m=100,m.par=m.par.true,L=L,U=U); #
+cat("Wave speed cstar =",out$objective,"\n"); #
+cat("Wave shape parameter s =",out$minimum,"\n");
+setwd("~/Repos/ipm_book/Rcode/c8"); #
+source("../c2/Monocarp Demog Funs.R")#
+L <- (-2.65); U <- 4; #
+out <- mk_K(100,m.par.true,L,U);#
+eigen(out$K)$values[1]; #
+tau_z <- function(z) {z1=pmax(z/3,0.1); 7*z1*z1}#
+mu_z <- function(z)  {z1=pmax(z/3,0.1); 3*z1}; #
+WALDmgf <- function(s,w.par) {#
+    mu <- w.par["r.mu"];#
+    tau <- w.par["r.tau"];#
+    t1 <- (tau/mu); #
+    t2 <- 2*(mu^2)*s/tau; #
+    mgf <- exp(t1*(1-sqrt(1-t2)));#
+    return(mgf)#
+}    #
+margWALDmgf <- function(s,w.par) {#
+  (1/pi)*integrate(function(theta) WALDmgf(s*cos(theta),w.par), lower=0,upper=pi)$value;#
+}#
+w.par <- c(3,7); names(w.par) <- c("r.mu","r.tau")#
+WALDmgf(0,w.par); margWALDmgf(0,w.par)#
+s.max <- function(w.par) {#
+  mu <- w.par["r.mu"];#
+  tau <- w.par["r.tau"];#
+  return(tau/(2*mu*mu)); #
+}  #
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts;#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		tau <- tau_z(zvals[j])#
+		w.par <- c(mu,tau); #
+		names(w.par) <- c("r.mu","r.tau")#
+	    Fs[,j] <- Fs[,j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}#
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.2);#
+out=optimize(cs,lower=0.05,upper=0.16,m=100,m.par=m.par.true,L=L,U=U); #
+cat("Wave speed cstar =",out$objective,"\n"); #
+cat("Wave shape parameter s =",out$minimum,"\n");
+?integrate
+integrate(function(x) x^2,0,1)$value
+integrate(function(x) x^2,l=0,u=1)$value
+integrate(function(x) x^2,l=0,u=2)$value
+integrate(function(x) x^2,0,2)$value
+setwd("~/Repos/ipm_book/Rcode/c8"); #
+source("../c2/Monocarp Demog Funs.R")#
+L <- (-2.65); U <- 4; #
+out <- mk_K(100,m.par.true,L,U);#
+eigen(out$K)$values[1]; #
+tau_z <- function(z) {h <- pmax(z/3,0.1); 7*h*h}#
+mu_z <- function(z)  {h <- pmax(z/3,0.1); 3*h}; #
+WALDmgf <- function(s,w.par) {#
+    mu <- w.par["r.mu"];#
+    tau <- w.par["r.tau"];#
+    t1 <- (tau/mu); #
+    t2 <- 2*(mu^2)*s/tau; #
+    mgf <- exp(t1*(1-sqrt(1-t2)));#
+    return(mgf)#
+}    #
+margWALDmgf <- function(s,w.par) {#
+  (1/pi)*integrate(function(q) WALDmgf(s*cos(q),w.par),0,pi)$value;#
+}#
+#
+w.par <- c(3,7); names(w.par) <- c("r.mu","r.tau")#
+WALDmgf(0,w.par); margWALDmgf(0,w.par)#
+s.max <- function(w.par) {#
+  mu <- w.par["r.mu"];#
+  tau <- w.par["r.tau"];#
+  return(tau/(2*mu*mu)); #
+}  #
+Hs <- function(s,m,m.par,L,U) {#
+	out<-mk_K(m,m.par,L,U);#
+	P <- out$P; Fs <- out$F; zvals <- out$meshpts;#
+	for(j in 1:m) {#
+		mu <- mu_z(zvals[j]);#
+		tau <- tau_z(zvals[j])#
+		w.par <- c(mu,tau); #
+		names(w.par) <- c("r.mu","r.tau")#
+	    Fs[,j] <- Fs[,j]*margWALDmgf(s,w.par)#
+	}#
+	return(P+Fs)     #
+}#
+cs <- function(s,m,m.par,L,U) {#
+	M <- Hs(s,m,m.par,L,U) #
+	L1 = abs(eigen(M)$values[1]); #
+    return((1/s)*log(L1)) #
+   }#
+cs = Vectorize(cs,"s"); #
+plot(function(s) cs(s,100,m.par.true,L,U),0.05,0.2);#
+out=optimize(cs,lower=0.05,upper=0.16,m=100,m.par=m.par.true,L=L,U=U); #
+cat("Wave speed cstar =",out$objective,"\n"); #
+cat("Wave shape parameter s =",out$minimum,"\n");
+# Analysis of Calluna north-east transect, using data tabulated#
+# in Bullock and Clarke 2000. #
+#
+source("../utilities/Standard Graphical Pars.R")#
+#
+# The data #
+distance <- c(0.6,0.8,1,1.5,2,3,4,6,8,10,15,20,30,40,60,80);#
+seedNumber <- c(2004,1323,369,149,86,69,27,17,6,11,3,2,0,0,0,0);#
+trapNumber <- c(2,2,2,3,4,6,8,12,16,20,30,40,60,80,120,160);#
+#
+# reality check: direct calculation here vs. numbers in their Table#
+# for the estimated number of seeds per m^2 as a function of distance#
+trapSize <- pi*(0.09/2)^2#
+trapArea <- trapNumber*trapSize;#
+seedDensity <- seedNumber/trapArea;
+# check that our calculation matches what's in the paper #
+seedDensity1 <- c(157504,103981,29002,7807,3380,1808,531,223,59,86,16,8,0,0,0,0); #
+plot(seedDensity,seedDensity1); abline(0,1)  #Good!
+dev.new(); #
+set_graph_pars("panel1"); par(cex.lab=1.4,cex.axis=1.3)#
+plot(log(distance[1:12]),log(seedDensity[1:12]),xlab="Log distance from shrub center",#
+	 ylab="Log seeds/m2");#
+fit0 <- lm(log(seedDensity[1:12])~log(distance[1:12])); abline(fit0);
+# check that our calculation matches what's in the paper #
+seedDensity1 <- c(157504,103981,29002,7807,3380,1808,531,223,59,86,16,8,0,0,0,0); #
+plot(seedDensity,seedDensity1); abline(0,1)  #Good!#
+#
+dev.new(); #
+set_graph_pars("panel1"); par(cex.lab=1.4,cex.axis=1.3,pch=19)#
+plot(log(distance[1:12]),log(seedDensity[1:12]),xlab="Log distance from shrub center",#
+	 ylab="Log seeds/m2");#
+fit0 <- lm(log(seedDensity[1:12])~log(distance[1:12])); abline(fit0);
+nllPower <- function(a,b) {#
+	mean=a*(distance^(-b))*trapArea#
+	d = dpois(seedNumber,mean,log=TRUE);#
+	return(sum(-d))#
+}#
+require(stats4);#
+a0 <- exp(10.4); b0 <-2.8; #
+fit <- mle(nllPower,start=list(a=a0,b=b0),method="Nelder-Mead",control=list(maxit=5000,trace=4))
+dev.copy2eps(file="../../c8/figures/BullockClarke.eps")
