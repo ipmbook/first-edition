@@ -4,14 +4,20 @@
 
 rm(list=ls(all=TRUE))
 
-## working directory must be set here, so the source()'s below run
-setwd("~/Repos/ipm_book/")
+## R's working directory must be set to where this file sits, so the source()'s below run
+
 ## run the utility functions
-source("./Rcode/utilities/Standard Graphical Pars.R")
+source("../utilities/Standard Graphical Pars.R")
+
 ## run the ungulate IBM, fit demographic models & build the IPM
-source("./Rcode/c2/Ungulate Calculations.R")
+# source("../c2/Ungulate Calculations.R")
+
+source("../c2/Ungulate Demog Funs.R")
+min.size <- 1.60
+max.size <- 3.70
+
 ## set the working directory to our figures location
-setwd("~/Repos/ipm_book/c4/figures")
+# setwd("~/Repos/ipm_book/c4/figures")
 
 ## copy model parameters 
 m.par <- m.par.true
@@ -98,7 +104,7 @@ dev.off()
 dK_by_ds_z1z <-
     outer(meshpts, meshpts,
           function (z1, z, m.par)
-              g_z1z(z1, z, m.par) + pb_z(z, m.par) * (1/2) * pr_z(m.par) * c_z1z(z1, z, m.par),
+              {g_z1z(z1, z, m.par) + pb_z(z, m.par) * (1/2) * pr_z(m.par) * c_z1z(z1, z, m.par)},
           m.par)
 s.sens.z <- apply(K.sens * dK_by_ds_z1z, 2, sum) * h
 s.elas.z <- s.sens.z * s_z(meshpts, m.par) / lambda
@@ -106,7 +112,7 @@ s.elas.z <- s.sens.z * s_z(meshpts, m.par) / lambda
 ## probability of reproduction
 dK_by_dpb_z1z <- outer(meshpts, meshpts,
                       function(z1, z, m.par)
-                        s_z(z, m.par) * (1/2) * pr_z(m.par) * c_z1z(z1, z, m.par),
+                        {s_z(z, m.par) * (1/2) * pr_z(m.par) * c_z1z(z1, z, m.par)},
                       m.par)
 pb.sens.z <- apply(K.sens * dK_by_dpb_z1z, 2, sum) * h
 pb.elas.z <- pb.sens.z * pb_z(meshpts, m.par) / lambda
