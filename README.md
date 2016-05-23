@@ -4,6 +4,8 @@ This is the companion git repository to "Data-driven Modeling of Structured Popu
 
 A word of warning: we are not professional programmers. Like most scientists we are largely self-taught, which means: 1) we do not always write the most beautuful R code; 2) we each have a slightly different approachh to getting things done in R. We have tried to be consistent in how we do things, but occasionally our styles diverge. We are at least reasonably sure that everything works as advertised, but do let us know if you spot a problem. 
 
+Happy IPMing!
+
 Steve, Dylan and Mark
 
 ## Organisation
