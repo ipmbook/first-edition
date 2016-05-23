@@ -14,7 +14,7 @@ g3 <- Gyx(yvals, 8)
 g3[g3 < tiny] <- NA
 
 #### Open the graphics window
-quartz(w = 7, h = 4)
+dev.new(w = 7, h = 4)
 
 par(cex.axis = 1.4, bty = "l", cex.lab = 1.4, yaxs = "i")
 par(mgp = c(2.5, 1, 0))
@@ -26,5 +26,5 @@ text(4.35, 0.6, "G(z',5)", cex = 1.3)
 text(8.6, 0.5, "G(z',8)", cex = 1.3)
 
 #### Save the plot as EPS and PDF
-dev.copy2eps(file = "../../figures/c2/GrowthDensity.eps")
-dev.copy2pdf(file = "../../figures/c2/GrowthDensity.eps")
+# dev.copy2eps(file = "../../figures/c2/GrowthDensity.eps")
+# dev.copy2pdf(file = "../../figures/c2/GrowthDensity.eps")

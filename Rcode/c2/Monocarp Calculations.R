@@ -21,7 +21,6 @@ cat(pop.size.t, "\n")
 sim.data <- sim.data[sim.data$yr > 10, ]
 sim.data$yr <- sim.data$yr - 10
 
-
 # Extract 1000 observations to use as our data set
 
 sample.index <- sample(1:nrow(sim.data), size = 1000, replace = FALSE)
@@ -40,6 +39,7 @@ sim.data <- sim.data[order(sim.data$z), ]
 
 ## fit the functions and plot some graphs
 
+dev.new(); 
 set_graph_pars("panel4")
 
 ## 1 - growth
@@ -166,6 +166,7 @@ stable.flowering.dist.true <- wb.true/sum(wb.true)
 mean.flowering.z.true <- sum(stable.flowering.dist.true * meshpts)
 mean.flowering.z.true
 
+dev.new(); 
 set_graph_pars("panel4")
 
 ## 1 - plot population density versus time...
@@ -198,4 +199,4 @@ plot(density(sim.data$z), main = "", ylim = c(0, 0.4), xlab = "Plant size")
 lines(IPM.est$meshpts, stable.z.dist.est/diff(IPM.est$meshpts)[1], col = "red")
 add_panel_label("d")
 
-dev.copy2eps(file = "../../figures/c2/OenotheraSim.eps")
+# dev.copy2eps(file = "../../figures/c2/OenotheraSim.eps")

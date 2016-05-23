@@ -5,6 +5,7 @@ require(mgcv)
 require(doBy)
 
 load("MonocarpSimData.Rdata")
+source("../utilities/Standard Graphical Pars.R"); 
 
 ## Construct a data set of plausible size
 pick.data <- seq(1, nrow(sim.data), length = 200)
@@ -39,5 +40,5 @@ add_panel_label("a")
 plot(gam.surv, seWithMean = TRUE, xlab = "Size z", ylab = "Spline(z,edf=1.09)")
 add_panel_label("b")
 
-dev.copy2eps(file = "../../figures/c2/DiagnoseMonocarp2.eps")
+# dev.copy2eps(file = "../../figures/c2/DiagnoseMonocarp2.eps")
 

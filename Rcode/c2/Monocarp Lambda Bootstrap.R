@@ -188,7 +188,7 @@ for (j in 1:n.pop.samples) {
 points(x = rep(true.lambda, 2), y = c(0, 0), type = "p", pch = 16, lwd = 2, 
        cex = 1.5)
 
-dev.copy2eps(file = "../../c2/figures/MonocarpLambdaBootstrap.eps")
+# dev.copy2eps(file = "../../c2/figures/MonocarpLambdaBootstrap.eps")
 
 
 

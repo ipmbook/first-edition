@@ -1,11 +1,13 @@
-### assumes that you have just source'd the Monocarp model
-### MonocarpEg1allz.R
+### This script assumes that you have just source'd the Monocarp model
+### using MonocarpSimulateIBM.R 
+  
+# or, load an .Rdata file with saved simulation results 
+load("MonocarpSimData.Rdata")
+
 require(car)
 require(mgcv)
 
 source("../utilities/Standard Graphical Pars.R")
-
-load("MonocarpSimData.Rdata")
 
 ## Construct a data set of plausible size
 pick.data <- seq(1, nrow(sim.data), length = 300)
@@ -50,4 +52,4 @@ matplot(test.data$size, cbind(fitted(mod.grow), gam.grow.fitted), type = "l",
         lty = c(1, 2), lwd = 2, xlab = "Size t", ylab = "Fitted size t+1")
 add_panel_label("d")
 
-dev.copy2eps(file = "../../figures/c2/DiagnoseMonocarp1.eps")
+# dev.copy2eps(file = "../../figures/c2/DiagnoseMonocarp1.eps")

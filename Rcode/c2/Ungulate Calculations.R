@@ -3,7 +3,6 @@
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 library(doBy)
-
 rm(list=ls(all=TRUE))
 
 set.seed(270875)
@@ -38,8 +37,9 @@ round(sim.data[sample(1:nrow(sim.data),8),],2)
 
 ## set the plotting region
 ## dev.new(6, 6)
-postscript(file="../../figures/c2/SoayDemog.eps", w=6, h=6,
-           horizontal = FALSE, onefile = FALSE, paper = "special")
+#postscript(file="../../figures/c2/SoayDemog.eps", w=6, h=6,
+#           horizontal = FALSE, onefile = FALSE, paper = "special")
+           
 set_graph_pars(ptype = "panel4")
 plot.range <- c(2.0, 3.5)
 
@@ -119,7 +119,7 @@ abline(mod.rcsz, col="red")
 add_panel_label(ltype="d")
 
 ## close the graphics device
-dev.off()
+# dev.off()
 
 ##
 ## Finally, store the estimated parameters
@@ -215,8 +215,8 @@ mk_moments <- function(z.dist, meshpts) {
 }
 
 ## 
-postscript(file="../../figures/c2/SoaySizeAge.eps", w=6, h=6,
-           horizontal = FALSE, onefile = FALSE, paper = "special")
+#postscript(file="../../figures/c2/SoaySizeAge.eps", w=6, h=6,
+#           horizontal = FALSE, onefile = FALSE, paper = "special")
 set_graph_pars(ptype = "panel1")
 ## age = 0 (new recruits)
 z.dist <- z.dist.by.age[[1]]
@@ -229,4 +229,4 @@ for (A in 0:4) {
     text(x=moments["mean"], y=max(z.dist)+5e-5, pos=4, cex=0.75,
          labels=paste("A = ", A, " (mean = ", moments["mean"], ", s.d. = ", moments["sd"],")", sep=""))
 }
-dev.off()
+# dev.off()

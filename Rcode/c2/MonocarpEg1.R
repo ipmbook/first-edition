@@ -332,8 +332,6 @@ stable.flowering.dist.true <- wb.true/sum(wb.true)
 mean.flowering.z.true <- sum(stable.flowering.dist.true * meshpts)
 mean.flowering.z.true
 
-
-
 par(mfrow = c(2, 2), bty = "l", pty = "s")
 
 ## 1 - plot population density versus time...
@@ -364,7 +362,7 @@ plot(density(sim.data$z), main = "", ylim = c(0, 0.4))
 lines(IPM.est$meshpts, stable.z.dist.est/diff(IPM.est$meshpts)[1], col = "red")
 mtext(side = 3, line = 0.5, adj = 0, text = "d)")
 
-dev.copy2eps(file='../../figures/c2/OenotheraSim.eps');
+# dev.copy2eps(file='../../figures/c2/OenotheraSim.eps');
 
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Section 5 - Example calculations
