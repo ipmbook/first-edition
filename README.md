@@ -16,5 +16,5 @@ The organisation is fairly self-explanatory. Each chapter that contains one or m
 
 ## Corrections
 
-There will inevitably be typos and omissions in a book of this size, and possibly some errors in the code examples. Please let one of us know if you think you've found one. We will use this repository to keep a living list of any problems that are discovered, as well as to note any changes we make to the R code examples post publication.
+There will inevitably be typos and omissions in a book of this size, and possibly some errors in the code examples. Please let one of us know if you think you've found one. We will use this repository to keep a living list of any problems that are discovered, as well as to note any changes we make to the R code examples post publication. There is also a file Errata.tex that lists all known errata in the book itself. 
 
