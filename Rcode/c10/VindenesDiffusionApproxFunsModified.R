@@ -92,7 +92,8 @@ mu.nu.Lande <- function(y, envar, demvar, lambda, ensd, bconst){
     return(list("mu"=mu, "nu"=nu))
     }
 
-diffusion.Lande <- function(y0, t.max=1000, delta.t=.1, n.sim=1000, b=Inf,...) {
+diffusion.Lande <- function(y0, t.max=1000, delta.t=.1, n.sim=1000, b=Inf,
+                   envar, demvar, lambda, ensd=ensd, bconst) {
   yy <- matrix(NA,ncol=(t.max+1),nrow=n.sim)
   tt <- seq(0,length=(t.max+1))
   yy[,1] <- y <- y0
