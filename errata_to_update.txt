@@ -1,0 +1,7 @@
+p313 2nd line after eq 10.7.2 should be Cov[X_2,Y_2]
+
+p313 line before eq 10.7.5 should refer to eq 10.7.4
+
+p314 penultimate line:  à la midpoint rule
+
+P29 "however, the the fraction"
