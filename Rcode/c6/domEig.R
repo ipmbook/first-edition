@@ -6,5 +6,7 @@ domEig=function(A,tol=1e-8) {
 		lam=sum(x1); 
 		x=x1/lam; 
 	} 
+    # Having found w (within tol), get lambda 
+    x1 = A%*%x; lam=sum(x1); x=x1/lam;   
 	return(list(lambda=lam,w=x/sum(x)))
 }  	

@@ -53,7 +53,7 @@ AIC(mod.Surv,mod.Surv.1,mod.Surv.2)
 
 #Let's refit so we can easily get the parameter estimates
 
-mod.Surv <- glm(Surv ~ Yeart/ z -1 , family = binomial, data = sim.data)
+mod.Surv <- glm(Surv ~ Yeart/z -1 , family = binomial, data = sim.data)
 
 summary(mod.Surv)
 
