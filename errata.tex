@@ -1,0 +1,176 @@
+% !TEX TS-program = pdflatex
+% The line above tells TeXShop to use the latex -> dvi -> distiller 
+% path to produce the pdf. 
+
+\documentclass[12pt]{article}
+
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{courier,type1cm,array}
+\usepackage{makeidx,graphicx,multicol}
+\usepackage[bottom]{footmisc} % places footnotes at page bottom
+\usepackage{natbib,float}
+\usepackage[vmargin=1in,hmargin=1in]{geometry}
+
+% allows compilation with pdflatex, under Windows 
+\usepackage{epstopdf}
+
+% Coloring of R code listings
+\usepackage[formats]{listings}
+\usepackage{color}
+\definecolor{mygreen}{rgb}{0.1,0.5,0.1}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{mygrey}{rgb}{0.3,0.3,0.1}
+\lstset{
+language=R,
+otherkeywords={data.frame},
+basicstyle=\normalsize\ttfamily, 
+commentstyle=\normalsize\ttfamily,
+keywordstyle=\normalsize\ttfamily,
+stringstyle=\color{mymauve}, 
+commentstyle=\color{mygreen},
+keywordstyle=\color{blue},
+showstringspaces=false, xleftmargin=2.5ex,
+columns=flexible,
+literate={~}{{$\sim \; \; $}}1,
+alsodigit={\.,\_},
+deletekeywords={on,by,data,R,Q,mean,var,sd,log,family,na,options,q,weights,effects,matrix,nrow,ncol,wt,fix,distance},
+}
+\lstset{escapeinside={(*}{*)}} 
+
+\lstdefineformat{Rpretty}{
+	; = \space,
+	\, = [\ \,\]]\string\space,
+	<- = [\ ]\space\string\space,
+	\= = [\ ]\space\string\space}
+
+\usepackage[compact]{titlesec} 
+\usepackage{enumitem}
+\setlist{leftmargin=0.75cm}
+
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+% reduce white space above and below verbatim text blocks
+\usepackage{etoolbox}
+\makeatletter
+\preto{\@verbatim}{\topsep=0.5pt \partopsep=0.5pt }
+\makeatother
+
+% let figs,boxes etc. occupy most of a page near where they
+% appear in the source file, instead of getting pushed to
+% the chapter's end. 
+\renewcommand{\topfraction}{0.9}	
+\renewcommand{\bottomfraction}{0.9}	
+\renewcommand{\textfraction}{0.07}	
+\renewcommand{\floatpagefraction}{0.85}	
+% floatpagefraction MUST be less than topfraction
+\setcounter{topnumber}{2}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4} 	
+
+% Define Box environment for numbered boxes. 
+\newcounter{box}
+\newcommand{\boxnumber}{\addtocounter{box}{1} \thebox \thinspace}
+
+\floatstyle{boxed}
+\newfloat{Box}{tcph}{box}[section]
+\numberwithin{Box}{section}
+
+% A few shortcuts
+% Define \z so that \z_0 and z'_0 have the same kerning for _0. 
+\def\z{z^{}}
+\def\Z{\mathbf{Z}}
+\def\N{\mathbf{N}}
+
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\ba}{\begin{equation} \begin{aligned}}
+\newcommand{\ea}{\end{aligned} \end{equation}}
+
+\makeindex
+
+\usepackage[scaled=0.9]{zi4}
+\usepackage{textcomp}
+
+
+\linespread{1.2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% End of the preamble 
+ 
+\begin{document}
+
+\author{Stephen P. Ellner, Dylan Z. Childs and Mark Rees}
+\title{Errata for: \\ Data-driven Modeling of Structured Populations: 
+A Practical Guide to the Integral Projection Model} 
+
+\maketitle
+
+\paragraph{Section 2.3:} We think that the statement about ``piecewise continuous'' in the footnote is true, but at least one proof in the book isn't valid regardless of what the curves are that divide $\Z^2$ into subregions. A slightly less general definition, which should be sufficient for any applications, is as follows. For the basic
+model where the individual-level state space $\Z$ is a 
+bounded interval $[L,U]$, a partition of $\Z$ is a set of 
+intervals 
+\begin{equation}
+\Z_1 = (z_0,z_1), \Z_2 = (z_1,z_2), \cdots, \Z_m = (z_{m-1},z_m) 
+\end{equation}
+where 
+\be
+L=z_0 < z_1 < z_2 < \cdots < z_M=U. 
+\ee
+A partition breaks $\Z^2$ into a set of open rectangles 
+$$\Z_{ij} = \Z_i \times \Z_j = \{(z',z): z' \in \Z_i, z \in \Z_j\}.$$
+Define the kernels $K_{ij}$ to be $K$ restricted to $\Z_{ij}$. 
+
+We say that $K$ is \emph{piecewise continuous} if there exists a 
+partition such that each of the kernels $K_{ij}$ is continuous on $\Z_{ij}$, 
+and can be defined on the boundary of $\Z_{ij}$ so that it is continuous
+on the closed rectangle $\bar{\Z}_{ij}$ consisting of $\Z_{ij}$ and its boundary.  
+
+The reason this definition works is the general theory in Chapter 6
+(originally in the Appendices to \citet{ellner-rees-2006}) applied to the  
+closed intervals $\bar{\Z}_{i} =  [z_0,z_1]$ as a set of continuous components, 
+with continuous component-to-component kernels $K_{ij}$. There are then state distribution 
+functions $n_i(z,t)$ defined on each $\bar{\Z}_i$, and in terms of the general     
+theory, this is an IPM with continuous kernels. But we can also think of it as defining a 
+single distribution function $n(z,t)$ on all of $[L,U]$, consisting of $n_1,n_2, \cdots n_M$ 
+side-by-side. 
+
+Each of the points $z_i$ is in two adjacent components, but this doesn't matter because  
+single points contribute nothing to the 
+As an example consider  $\Z = [0,2]$ and the (nonsensical) kernel $K(z',z) = 1$ 
+if $z'>1$, and 0 otherwise. The partition is $\Z_1 = (0,1), \Z_2 = (1,2)$ and the kernels are 
+\be
+K_{11}=K_{12}\equiv 0, K_{21}=K_{22}\equiv 1.
+\ee
+The population dynamics are 
+\ba
+n_1(z',t+1) & = \int_0^1 K_{11}(z',z) n_1(z,t) dz + \int_1^2 K_{12}(z',z) n_2(z,t) dz  = 0 \\
+n_2(z',t+1) & = \int_0^1 K_{21}(z',z) n_1(z,t) dz + \int_1^2 K_{22}(z',z) n_2(z,t) dz  \\
+& =  \int_0^1 n_1(z,t) dz + \int_1^2 n_2(z,t) dz.  
+\label{eqn:badK1}
+\ea
+So $n_1(1,t+1)=0$, while $n_2(1,t+1)>0$ unless there were no individuals at time $t$. 
+However, the values of $n_1$ and $n_2$ at the one point $z=1$ have no effect on the
+integrals in the population dynamics, so we can regard $n(1,t+1)$ as being undefined,
+or give it an arbitrary value such the average $n_1(1,t+1)$ and $n_2(1,t+1)$. 
+
+The contrived kernel is \eqref{eqn:badK1} a counter-example to the claim in section 6.9 that a 
+piecewise continuous kernel, as defined in that section, maps $L_1(\Z)$ into $C(\Z)$. 
+The gap in the proof is the assertion that the functions $f_n$ converge almost everywhere, 
+which is not necessarily true regardless of how the partitioning into sets $\mathcal{U}_k$ is done. But on the 
+set of domains $\bar{\Z}_{i}$ the component kernels are all continuous and the $f_n$ converge 
+pointwise, which is sufficient for the rest of the proof. 
+In example \eqref{eqn:badK1}, $n_1$ is continuous on $\bar{\Z}_1$ and 
+$n_2$ is continuous on $\bar{\Z}_2$, and that is exactly what it means to be continuous
+on the state space with domains $\bar{\Z}_1$ and $\bar{\Z}_2$.  
+
+
+\end{document} 
+
+
+
+
+
