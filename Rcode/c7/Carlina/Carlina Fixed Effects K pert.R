@@ -4,11 +4,6 @@
 
 rm(list=ls(all=TRUE))
 
-library(doBy)
-library(lme4)
-library(MCMCglmm)
-library(parallel)
-library(rjags)
 set.seed(53241986)
 
 ## Working directory must be set here, so the source()'s below run
@@ -16,6 +11,7 @@ root=ifelse(.Platform$OS.type=="windows","c:/repos","~/Repos");
 setwd(paste(root,"/ipm_book/Rcode/c2",sep="")); 
 
 source("../utilities/Standard Graphical Pars.R");
+source("../utilities/MatrixImage.R");
 
 root=ifelse(.Platform$OS.type=="windows","c:/repos","~/Repos"); 
 setwd(paste(root,"/ipm_book/Rcode/c7/Carlina",sep="")); 
@@ -23,7 +19,6 @@ setwd(paste(root,"/ipm_book/Rcode/c7/Carlina",sep=""));
 load("Yearly parameters.Rdata")
 
 source("Carlina Demog Funs DI.R") 
-
 
 #####################################################################
 #Stochastic perturbation analysis
@@ -186,7 +181,7 @@ image(meshpts[ikeep], meshpts[ikeep], t(K.sd.elas[ikeep,ikeep]),
 contour(meshpts[ikeep], meshpts[ikeep], t(K.sd.elas[ikeep,ikeep]), 
         add=TRUE,levels=c(-0.05,-0.2,-0.4))
 add_panel_label("d")
-dev.copy2eps(file="~/Repos/ipm_book/c7/figures/CarlinaElasSens.eps")
+# dev.copy2eps(file="~/Repos/ipm_book/c7/figures/CarlinaElasSens.eps")
 
 
 
